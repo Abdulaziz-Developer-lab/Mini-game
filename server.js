@@ -12,8 +12,7 @@ let serverState = {
     upgradeCost: 10,
     autoPower: 0,
     autoclickCost: 50,
-    gamesUnlocked: { guess: false, react: false, wheel: false, crypto: false },
-    myCryptoCount: 0
+    gamesUnlocked: { guess: false, react: false, wheel: false, crypto: false }
 };
 
 let leaderboardData = [
@@ -43,7 +42,6 @@ app.post('/api/upgrade', (req, res) => {
     }
 });
 
-// AVTO-ROBOT API YO'LAGI (SHU YERGA QO'SHILDI)
 app.post('/api/autoclick', (req, res) => {
     if (serverState.score >= serverState.autoclickCost) {
         serverState.score -= serverState.autoclickCost;
@@ -52,6 +50,34 @@ app.post('/api/autoclick', (req, res) => {
         res.json({ success: true, state: serverState });
     } else {
         res.status(400).json({ success: false, message: "Mablag' yetarli emas!" });
+    }
+});
+
+// O'YINLARNI SOTIB OLISH YO'LAGI
+app.post('/api/unlock-game', (req, res) => {
+    const { gameId } = req.body;
+    let cost = 100;
+    if (gameId === 'react') cost = 300;
+    if (gameId === 'wheel') cost = 500;
+    if (gameId === 'crypto') cost = 1000;
+
+    if (serverState.score >= cost) {
+        serverState.score -= cost;
+        serverState.gamesUnlocked[gameId] = true;
+        res.json({ success: true, state: serverState });
+    } else {
+        res.status(400).json({ success: false, message: "Tangalar yetarli emas!" });
+    }
+});
+
+// O'YINLARDAGI YUTUQNI SERVERGA QO'SHISH
+app.post('/api/reward', (req, res) => {
+    const { amount } = req.body;
+    if (amount && amount > 0) {
+        serverState.score += amount;
+        res.json({ success: true, score: serverState.score });
+    } else {
+        res.status(400).json({ success: false });
     }
 });
 
