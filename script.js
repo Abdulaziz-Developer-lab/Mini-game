@@ -126,9 +126,8 @@ window.unlockGame = async function(gameId, cost) {
         alert(`Sizga ${cost} ta tanga kerak! Hozir sizda: ${currentScore} ta bor.`);
         return;
     }
-    try {
-        const url = window.location.origin + '/api/unlock-game';
-    }
+    try 
+        const response = await fetch(url);
         const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
