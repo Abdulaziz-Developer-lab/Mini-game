@@ -32,22 +32,18 @@ if (modalAlertBtn) {
 function checkPlayerName() {
     let savedName = localStorage.getItem('game_username');
     
-    // Agar ism allaqachon bo'lsa, kodni shu yerda to'xtatamiz
     if (savedName && savedName !== 'Mehmon' && savedName.trim() !== '') {
         return; 
     }
     
-    // Agar ism bo'lmasa, brauzerning o'zidan chiroyli oyna ochiladi
     let name = prompt("🎮 Xush kelibsiz! O'yin uchun taxallus (nik) kiriting:", "Abdulaziz");
     
     if (!name || name.trim() === '' || name === 'Mehmon') {
         name = "O'yinchi_" + Math.floor(Math.random() * 900 + 100);
     }
     
-    // Brauzer xotirasiga o'chmaydigan qilib mixlaymiz
     localStorage.setItem('game_username', name);
     
-    // Serverga shunchaki yuborib qo'yamiz
     try {
         fetch('/api/set-name', {
             method: 'POST',
@@ -68,10 +64,6 @@ async function loadFromServer() {
         const data = await response.json();
         currentScore = data.score;
         updateUI(data);
-        
-        // DIQQAT: Serverdan kelgan "Mehmon" ismini endi local xotiraga yozmaymiz!
-        // Local xotiradagi siz yozgan ism ustun turadi.
-        
     } catch (error) { console.error("Xato:", error); }
 }
 
@@ -366,6 +358,6 @@ setInterval(loadLeaderboard, 3000);
 
 window.onload = async () => { 
     await loadFromServer(); 
-    checkPlayerName(); // Ism tekshirish faqat bir marta, sayt yuklanganda ishlaydi!
+    checkPlayerName(); 
     loadLeaderboard(); 
 };
