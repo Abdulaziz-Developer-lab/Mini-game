@@ -3,13 +3,30 @@ const upgradeBtn = document.getElementById('upgrade-btn');
 const clickBtn = document.getElementById('click-btn');
 const autoclickBtn = document.getElementById('autoclick-btn');
 
-// HAR BIR BRAUZER UCHUN MAXSUS UNIQUE ID YARATISH
 if (!localStorage.getItem('game_user_id')) {
     localStorage.setItem('game_user_id', 'user_' + Math.random().toString(36).substr(2, 9));
 }
 const myUserId = localStorage.getItem('game_user_id');
 
 let currentScore = 0;
+
+// ISMNI TEKSHIRISH VA SERVERGA YUBORISH
+async function checkPlayerName(state) {
+    if (!localStorage.getItem('game_username') || localStorage.getItem('game_username') === 'Mehmon') {
+        let name = prompt("O'yin uchun o'zizga taxallus (nik) kiriting:");
+        if (!name || name.trim() === "") name = "Foydalanuvchi_" + Math.floor(Math.random() * 900 + 100);
+        
+        localStorage.setItem('game_username', name);
+        
+        try {
+            await fetch('/api/set-name', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: myUserId, name: name })
+            });
+        } catch (e) { console.error(e); }
+    }
+}
 
 async function loadFromServer() {
     try {
@@ -21,6 +38,7 @@ async function loadFromServer() {
         const data = await response.json();
         currentScore = data.score;
         updateUI(data);
+        checkPlayerName(data);
     } catch (error) { console.error("Xato:", error); }
 }
 
@@ -149,7 +167,7 @@ window.unlockGame = async function(gameId, cost) {
     } catch (e) { console.error(e); }
 };
 
-// 1. SONNI TOP O'YINI
+// 1. SONNI TOP
 let randomNumber = Math.floor(Math.random() * 50) + 1;
 window.checkGuess = function() {
     const input = document.getElementById('guess-input');
@@ -169,7 +187,7 @@ window.checkGuess = function() {
     }
 };
 
-// 2. KIM CHAQQON?
+// 2. KIM CHAQQON
 let reactTimer = null;
 let reactStartTime = 0;
 function resetReactGame() {
@@ -273,14 +291,10 @@ window.sellCrypto = function() {
     } else { alert("Sizda DurovCoin yo'q!"); }
 };
 
-// REYTING VA MENULAR
+// GLOBAL REYTINGNI CHIQARISH
 async function loadLeaderboard() {
     try {
-        const response = await fetch('/api/leaderboard', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: myUserId })
-        });
+        const response = await fetch('/api/global-leaderboard');
         if (!response.ok) return;
         const players = await response.json();
         const tbody = document.getElementById('leaderboard-body');
