@@ -124,6 +124,30 @@ setInterval(() => {
     });
 }, 1000);
 
+// FOYDALANUVCHI ISMINI BAZADA YANGILASH
+app.post('/api/set-name', (req, res) => {
+    const { userId, name } = req.body;
+    
+    if (!userId || !name) {
+        return res.status(400).json({ success: false, message: "Ma'lumotlar to'liq emas" });
+    }
+
+    if (gameState[userId]) {
+        gameState[userId].username = name;
+        return res.json({ success: true, username: name });
+    } else {
+        gameState[userId] = {
+            score: 0,
+            clickPower: 1,
+            autoPower: 0,
+            upgradeCost: 10,
+            autoclickCost: 50,
+            username: name,
+            gamesUnlocked: { guess: false, react: false, wheel: false, crypto: false }
+        };
+        return res.json({ success: true, username: name });
+    }
+});
 app.listen(PORT, () => {
     console.log(`Server xavfsiz ishga tushdi: http://localhost:${PORT}`);
 });
