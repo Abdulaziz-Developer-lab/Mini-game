@@ -10,7 +10,7 @@ const myUserId = localStorage.getItem('game_user_id');
 
 let currentScore = 0;
 
-// MODAL BILDIRISHNOMA (ALERT O'RNIGA)
+// CHUNUK ALERT O'RNIGA NEON POPUP
 function showCustomAlert(title, message) {
     const alertModal = document.getElementById('alert-modal');
     if (alertModal) {
@@ -20,7 +20,7 @@ function showCustomAlert(title, message) {
     }
 }
 
-// ALERT MODALNI YOPISH
+// ALERT POPUPNI YOPISH
 const modalAlertBtn = document.getElementById('modal-alert-btn');
 if (modalAlertBtn) {
     modalAlertBtn.onclick = () => {
@@ -29,11 +29,11 @@ if (modalAlertBtn) {
     };
 }
 
-// TAXALLUSNI MODAL ORQALI SO'RASH (MAJBURIY VARIANT)
+// NIKNI MODAL OYNA ORQALI MAJBURIY SO'RASH
 async function checkPlayerName(state) {
     let currentLocalName = localStorage.getItem('game_username');
     
-    // Agar ism hali yo'q bo'lsa yoki "Mehmon" bo'lib qolgan bo'lsa, oynani ochamiz
+    // Agar ism yo'q bo'lsa yoki "Mehmon" bo'lsa, popup ochiladi
     if (!currentLocalName || currentLocalName === 'Mehmon' || currentLocalName.trim() === '') {
         const nameModal = document.getElementById('name-modal');
         if (nameModal) {
@@ -63,6 +63,7 @@ async function checkPlayerName(state) {
     }
 }
 
+// SERVERDAN MA'LUMOT YUKLASH VA REFRESHNI TO'G'RILASH
 async function loadFromServer() {
     try {
         const response = await fetch('/api/game-state', {
@@ -73,8 +74,16 @@ async function loadFromServer() {
         const data = await response.json();
         currentScore = data.score;
         updateUI(data);
+        
+        // Agar serverda hali ham Mehmon bo'lsa, uni localda ushlab turmaymiz
+        if (data.username && data.username !== 'Mehmon') {
+            localStorage.setItem('game_username', data.username);
+        } else {
+            localStorage.removeItem('game_username'); // Modal qayta ochilishi uchun
+        }
+        
         checkPlayerName(data);
-    } catch (error) { console.error("Serverdan yuklashda xato:", error); }
+    } catch (error) { console.error("Xato:", error); }
 }
 
 function updateUI(state) {
@@ -182,7 +191,7 @@ if (autoclickBtn) {
     };
 }
 
-// YANGI O'YIN OCHISH FUNKSIYASI
+// MINI-O'YINLARNI SOTIB OLISH
 window.unlockGame = async function(gameId, cost) {
     if (currentScore < cost) {
         showCustomAlert("⚠️ Mablag' yetarli emas", `Sizga ${cost} ta tanga kerak! Hozir sizda: ${currentScore} ta bor.`);
