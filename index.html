@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
+    <style>
+    .leaderboard-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    table {
+        width: 100%;
+        min-width: 280px;
+    }
+</style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Mega Arcade Hub 2026</title>
@@ -101,17 +112,22 @@
                 <h2>🏆 Peshqadamlar Ro'yxati</h2>
                 <p>Eng ko'p tanga yig'gan o'yinchilar top reytingi:</p>
                 <div class="leaderboard-box">
-                    <table id="leaderboard-table">
-                        <thead>
-                            <tr>
-                                <th>O'rin</th>
-                                <th>O'yinchi</th>
-                                <th>Tangalar 🪙</th>
-                            </tr>
-                        </thead>
-                        <tbody id="leaderboard-body">
+                    
+                    <!-- MANA SHU YERDA JADVAL "leaderboard-wrapper" BILAN CHIROYLI O'RAB QO'YILDI -->
+                    <div class="leaderboard-wrapper">
+                        <table id="leaderboard-table">
+                            <thead>
+                                <tr>
+                                    <th>O'rin</th>
+                                    <th>O'yinchi</th>
+                                    <th>Tangalar 🪙</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leaderboard-body">
                             </tbody>
-                    </table>
+                        </table>
+                    </div> <!-- O'RAM SHU YERDA YOPILDI -->
+
                 </div>
             </div>
 
