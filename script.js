@@ -3,13 +3,15 @@ const upgradeBtn = document.getElementById('upgrade-btn');
 const clickBtn = document.getElementById('click-btn');
 
 let currentScore = 0;
+let gamesUnlocked = { guess: false, react: false, wheel: false, crypto: false };
 
 async function loadFromServer() {
     try {
-        const response = await fetch('/api/game-state'); // TO'G'RILANDI: /api qo'shildi
+        const response = await fetch('/api/game-state');
         if (!response.ok) throw new Error('Server xatosi');
         const data = await response.json();
         currentScore = data.score;
+        gamesUnlocked = data.gamesUnlocked;
         updateUI(data);
     } catch (error) {
         console.error("Xato:", error);
@@ -23,12 +25,22 @@ function updateUI(state) {
         upgradeBtn.textContent = `Kuchaytirish (${state.upgradeCost})`;
         upgradeBtn.disabled = state.score < state.upgradeCost;
     }
+    
+    // Qaysi o'yin ochilgan bo'lsa, qulf ekranini yashirish logikasi
+    Object.keys(state.gamesUnlocked).forEach(game => {
+        if (state.gamesUnlocked[game]) {
+            const lockScreen = document.getElementById(`${game}-lock`);
+            if (lockScreen) lockScreen.style.display = 'none'; // qulf oynasini berkitadi
+            const gameScreen = document.getElementById(`${game}-actual-game`);
+            if (gameScreen) gameScreen.style.display = 'block'; // haqiqiy o'yinni ko'rsatadi
+        }
+    });
 }
 
 if (clickBtn) {
     clickBtn.addEventListener('click', async () => {
         try {
-            const response = await fetch('/api/click', { method: 'POST' }); // TO'G'RILANDI: /api qo'shildi
+            const response = await fetch('/api/click', { method: 'POST' });
             const data = await response.json();
             if (data.success) {
                 if (scoreDisplay) scoreDisplay.textContent = data.score;
@@ -42,7 +54,7 @@ if (clickBtn) {
 if (upgradeBtn) {
     upgradeBtn.addEventListener('click', async () => {
         try {
-            const response = await fetch('/api/upgrade', { method: 'POST' }); // TO'G'RILANDI: /api qo'shildi
+            const response = await fetch('/api/upgrade', { method: 'POST' });
             const data = await response.json();
             if (data.success) {
                 updateUI(data.state);
@@ -52,9 +64,29 @@ if (upgradeBtn) {
     });
 }
 
+// O'yin sotib olish sariq tugmasi bosilganda ishlaydi
+async function buyGame(gameId) {
+    if (currentScore < 100) {
+        alert("Sariq tugmani bosish uchun kamida 100 ta tanganiz bo'lishi kerak!");
+        return;
+    }
+    try {
+        const response = await fetch('/api/unlock-game', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ gameId: gameId })
+        });
+        const data = await response.json();
+        if (data.success) {
+            updateUI(data.state);
+            alert("Tabriklaymiz! O'yin ochildi.");
+        }
+    } catch (e) { console.error(e); }
+}
+
 async function loadLeaderboard() {
     try {
-        const response = await fetch('/api/leaderboard'); // TO'G'RILANDI: /api qo'shildi
+        const response = await fetch('/api/leaderboard');
         if (!response.ok) throw new Error('Leaderboard topilmadi');
         const players = await response.json();
         const tbody = document.getElementById('leaderboard-body');
@@ -81,16 +113,9 @@ function switchTab(tabId) {
     if (activeTab) activeTab.classList.add('active');
 }
 
-// UNIVERSAL FUNKSIYA: Tugma 'unlockGame' yoki 'switchTab' deb chaqirilganda ham ishlayveradi
 function unlockGame(gameId) {
     if (!gameId) return;
     
-    // Agar to'g'ridan-to'g'ri ID kelgan bo'lsa (masalan: 'guess-tab')
-    if (gameId.includes('-tab')) {
-        switchTab(gameId);
-    } 
-    // Agar qisqa nom kelgan bo'lsa (masalan: 'guess')
-    else {
-        switchTab(gameId + '-tab');
-    }
+    let cleanId = gameId.replace('-tab', '');
+    switchTab(cleanId + '-tab');
 }
