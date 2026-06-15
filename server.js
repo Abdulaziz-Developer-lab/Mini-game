@@ -43,17 +43,15 @@ app.post('/api/upgrade', (req, res) => {
     }
 });
 
-// YANGI QO'SHILGAN JOY: O'yinlarni sotib olish (ochish) API yo'lagi
-app.post('/api/unlock-game', (req, res) => {
-    const { gameId } = req.body;
-    const cost = 100; // o'yin narxi
-
-    if (serverState.score >= cost) {
-        serverState.score -= cost;
-        serverState.gamesUnlocked[gameId] = true;
+// AVTO-ROBOT API YO'LAGI (SHU YERGA QO'SHILDI)
+app.post('/api/autoclick', (req, res) => {
+    if (serverState.score >= serverState.autoclickCost) {
+        serverState.score -= serverState.autoclickCost;
+        serverState.autoPower += 1; 
+        serverState.autoclickCost = Math.round(serverState.autoclickCost * 1.6); 
         res.json({ success: true, state: serverState });
     } else {
-        res.status(400).json({ success: false, message: "Tangalaringiz yetarli emas!" });
+        res.status(400).json({ success: false, message: "Mablag' yetarli emas!" });
     }
 });
 
