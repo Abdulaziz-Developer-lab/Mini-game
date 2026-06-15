@@ -55,11 +55,26 @@ function updateUI(state) {
                 if (game === 'crypto') navBtn.textContent = '🪙 Kripto Birja';
             }
         } else {
-            // Agar ochilmagan bo'lsa qulf holatida tursin
             if (lockScreen) lockScreen.style.display = 'block';
             if (playScreen) playScreen.style.display = 'none';
         }
     });
+}
+
+// O'yinlarda yutuq bo'lganda serverga saqlash funksiyasi
+async function giveServerReward(amount) {
+    try {
+        const response = await fetch('/api/reward', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: amount })
+        });
+        const data = await response.json();
+        if (data.success) {
+            currentScore = data.score;
+            if (scoreDisplay) scoreDisplay.textContent = data.score;
+        }
+    } catch (e) { console.error(e); }
 }
 
 // Clicker tugmasi
@@ -142,9 +157,8 @@ window.checkGuess = function() {
     }
 
     if (userGuess === randomNumber) {
-        msg.innerHTML = "<span style='color: #22c55e;'>🎉 To'g'ri! Balansingizga +30 tanga qo'shildi!</span>";
-        currentScore += 30;
-        if (scoreDisplay) scoreDisplay.textContent = currentScore;
+        msg.innerHTML = "<span style='color: #22c55e;'>🎉 To'g'ri! +30 tanga qo'shildi!</span>";
+        giveServerReward(30); 
         randomNumber = Math.floor(Math.random() * 50) + 1; 
         input.value = '';
     } else if (userGuess > randomNumber) {
@@ -189,8 +203,7 @@ document.addEventListener('click', function(e) {
         } else if (reactBox.style.background === 'rgb(34, 197, 94)') {
             const reactionTime = (Date.now() - reactStartTime) / 1000;
             if (reactResult) reactResult.textContent = `⚡ Vaqtingiz: ${reactionTime} soniya! (+50 tanga)`;
-            currentScore += 50;
-            if (scoreDisplay) scoreDisplay.textContent = currentScore;
+            giveServerReward(50); 
             reactBox.style.background = '#3b82f6';
             reactBox.textContent = 'Yana o\'ynash';
         } else {
@@ -227,8 +240,7 @@ window.spinWheel = function() {
         
         if (randomReward > 0) {
             result.innerHTML = `<span style='color: #22c55e;'>🎁 Sizga ${randomReward} tanga tushdi!</span>`;
-            currentScore += randomReward;
-            if (scoreDisplay) scoreDisplay.textContent = currentScore;
+            giveServerReward(randomReward); 
         } else {
             result.innerHTML = "<span style='color: #ef4444;'>😢 Bu safar omad kelmadi!</span>";
         }
