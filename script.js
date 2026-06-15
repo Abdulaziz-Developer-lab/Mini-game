@@ -6,7 +6,7 @@ let currentScore = 0;
 
 async function loadFromServer() {
     try {
-        const response = await fetch('/game-state');
+        const response = await fetch('/api/game-state'); // TO'G'RILANDI: /api qo'shildi
         if (!response.ok) throw new Error('Server xatosi');
         const data = await response.json();
         currentScore = data.score;
@@ -28,7 +28,7 @@ function updateUI(state) {
 if (clickBtn) {
     clickBtn.addEventListener('click', async () => {
         try {
-            const response = await fetch('/click', { method: 'POST' });
+            const response = await fetch('/api/click', { method: 'POST' }); // TO'G'RILANDI: /api qo'shildi
             const data = await response.json();
             if (data.success) {
                 if (scoreDisplay) scoreDisplay.textContent = data.score;
@@ -42,7 +42,7 @@ if (clickBtn) {
 if (upgradeBtn) {
     upgradeBtn.addEventListener('click', async () => {
         try {
-            const response = await fetch('/upgrade', { method: 'POST' });
+            const response = await fetch('/api/upgrade', { method: 'POST' }); // TO'G'RILANDI: /api qo'shildi
             const data = await response.json();
             if (data.success) {
                 updateUI(data.state);
@@ -54,7 +54,7 @@ if (upgradeBtn) {
 
 async function loadLeaderboard() {
     try {
-        const response = await fetch('/leaderboard');
+        const response = await fetch('/api/leaderboard'); // TO'G'RILANDI: /api qo'shildi
         if (!response.ok) throw new Error('Leaderboard topilmadi');
         const players = await response.json();
         const tbody = document.getElementById('leaderboard-body');
@@ -86,7 +86,7 @@ function unlockGame(gameId) {
     if (!gameId) return;
     
     // Agar to'g'ridan-to'g'ri ID kelgan bo'lsa (masalan: 'guess-tab')
-    if (gameId.set || gameId.includes('-tab')) {
+    if (gameId.includes('-tab')) {
         switchTab(gameId);
     } 
     // Agar qisqa nom kelgan bo'lsa (masalan: 'guess')
