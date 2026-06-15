@@ -1,12 +1,11 @@
 const scoreDisplay = document.getElementById('score');
 const upgradeBtn = document.getElementById('upgrade-btn');
 const clickBtn = document.getElementById('click-btn');
+const autoclickBtn = document.getElementById('autoclick-btn'); // AVTO-ROBOT TUGMASI
 
 let currentScore = 0;
 
-// ==========================================
 // SERVER BILAN ALOQA VA UI YANGILANISHI
-// ==========================================
 async function loadFromServer() {
     try {
         const response = await fetch('/api/game-state');
@@ -23,9 +22,20 @@ function updateUI(state) {
     if (scoreDisplay) scoreDisplay.textContent = state.score;
     if (document.getElementById('click-power')) document.getElementById('click-power').textContent = state.clickPower;
     
+    // Avto-power qiymatini ekranga chiqarish
+    if (document.getElementById('auto-power')) {
+        document.getElementById('auto-power').textContent = state.autoPower;
+    }
+
     if (upgradeBtn) {
         upgradeBtn.textContent = `Kuchaytirish (${state.upgradeCost})`;
         upgradeBtn.disabled = state.score < state.upgradeCost;
+    }
+
+    // Avto-Robot tugmasini yangilash
+    if (autoclickBtn) {
+        autoclickBtn.textContent = `Avto-Robot (${state.autoclickCost})`;
+        autoclickBtn.disabled = state.score < state.autoclickCost;
     }
     
     // O'yinlar ochilgan bo'lsa, qulf ekranini yopib, o'yinni ko'rsatish
@@ -40,7 +50,6 @@ function updateUI(state) {
                 playScreen.classList.remove('hidden');
             }
             
-            // Menyudagi qulf belgisini olib tashlash va stiker qo'shish
             const navBtn = document.getElementById(`nav-${game}`);
             if (navBtn) {
                 if (game === 'guess') navBtn.textContent = '🔢 Sonni Top';
@@ -72,6 +81,20 @@ if (upgradeBtn) {
     upgradeBtn.onclick = async () => {
         try {
             const response = await fetch('/api/upgrade', { method: 'POST' });
+            const data = await response.json();
+            if (data.success) {
+                updateUI(data.state);
+                currentScore = data.state.score;
+            }
+        } catch (e) { console.error(e); }
+    };
+}
+
+// Avto-Robot tugmasi bosilganda (YANGI QO'SHILDI)
+if (autoclickBtn) {
+    autoclickBtn.onclick = async () => {
+        try {
+            const response = await fetch('/api/autoclick', { method: 'POST' });
             const data = await response.json();
             if (data.success) {
                 updateUI(data.state);
@@ -120,7 +143,7 @@ window.checkGuess = function() {
     if (userGuess === randomNumber) {
         msg.innerHTML = "<span style='color: #22c55e;'>🎉 To'g'ri! Balansingizga +30 tanga qo'shildi!</span>";
         giveReward(30);
-        randomNumber = Math.floor(Math.random() * 50) + 1; // Yangi son o'ylash
+        randomNumber = Math.floor(Math.random() * 50) + 1; 
         input.value = '';
     } else if (userGuess > randomNumber) {
         msg.textContent = "📉 Kichikroq son o'ylang.";
@@ -144,7 +167,7 @@ function resetReactGame() {
     reactBox.textContent = 'Kuting...';
     if (reactResult) reactResult.textContent = '';
     
-    const delay = Math.random() * 3000 + 2000; // 2-5 soniya delay
+    const delay = Math.random() * 3000 + 2000; 
     reactTimer = setTimeout(() => {
         reactBox.style.background = '#22c55e';
         reactBox.textContent = 'BOSING!!!';
@@ -185,7 +208,7 @@ window.spinWheel = function() {
     const result = document.getElementById('wheel-result');
     if (!wheel || !result) return;
 
-    currentScore -= 20; // Narxini ayirish
+    currentScore -= 20; 
     if (scoreDisplay) scoreDisplay.textContent = currentScore;
 
     result.textContent = "Aylanmoqda... 🎰";
@@ -217,7 +240,7 @@ let myCryptoCount = 0;
 setInterval(() => {
     const priceTxt = document.getElementById('crypto-price');
     if (priceTxt) {
-        let change = Math.floor(Math.random() * 41) - 20; // -20 dan +20 gacha o'zgarish
+        let change = Math.floor(Math.random() * 41) - 20; 
         cryptoPrice = Math.max(10, cryptoPrice + change);
         priceTxt.textContent = cryptoPrice;
     }
@@ -245,17 +268,13 @@ window.sellCrypto = function() {
     }
 };
 
-// Tanganing hisobini mukofot bilan to'ldirish funksiyasi
 function giveReward(amount) {
     currentScore += amount;
     if (scoreDisplay) scoreDisplay.textContent = currentScore;
-    // Server bilan sinxronlash
-    fetch('/api/click', { method: 'POST' }); // Server hisobini ham oshirish uchun oddiy so'rov
+    fetch('/api/click', { method: 'POST' }); 
 }
 
-// ==========================================
-// LEADERBOARD VA NAVIGATSIYA (TAB)
-// ==========================================
+// LEADERBOARD VA NAVIGATSIYA
 async function loadLeaderboard() {
     try {
         const response = await fetch('/api/leaderboard');
