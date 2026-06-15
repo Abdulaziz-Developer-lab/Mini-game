@@ -28,45 +28,33 @@ if (modalAlertBtn) {
     };
 }
 
-// NIKNI TEKSHIRISH (UMUMAN QAYTA CHIQMAYDIGAN QULFLANGAN VARIANT)
+// TAXALLUSNI BRAUZER ORQALI SO'RASH (QAYTIB UMUMAN CHIQMAYDI)
 function checkPlayerName() {
-    const nameModal = document.getElementById('name-modal');
     let savedName = localStorage.getItem('game_username');
     
-    // Agar brauzer xotirasida ism bo'lsa va u Mehmon bo'lmasa, oynani umuman ko'rsatmaymiz!
+    // Agar ism allaqachon bo'lsa, kodni shu yerda to'xtatamiz
     if (savedName && savedName !== 'Mehmon' && savedName.trim() !== '') {
-        if (nameModal) nameModal.style.display = 'none';
         return; 
     }
     
-    // Agar ism topilmasa, oynani ochamiz
-    if (nameModal) {
-        nameModal.style.display = 'flex'; 
-        
-        document.getElementById('modal-name-btn').onclick = async () => {
-            const input = document.getElementById('modal-name-input');
-            let name = input ? input.value.trim() : "";
-            
-            if (!name || name === 'Mehmon') {
-                name = "O'yinchi_" + Math.floor(Math.random() * 900 + 100);
-            }
-            
-            // BRAUZER XOTIRASIGA MIXLAB QO'YAMIZ
-            localStorage.setItem('game_username', name);
-            nameModal.style.display = 'none'; 
-            
-            // Serverga shunchaki xabar berib qo'yamiz (lekin javobini kutib o'tirmaymiz)
-            try {
-                fetch('/api/set-name', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId: myUserId, name: name })
-                });
-            } catch (e) { console.error(e); }
-            
-            loadLeaderboard();
-        };
+    // Agar ism bo'lmasa, brauzerning o'zidan chiroyli oyna ochiladi
+    let name = prompt("🎮 Xush kelibsiz! O'yin uchun taxallus (nik) kiriting:", "Abdulaziz");
+    
+    if (!name || name.trim() === '' || name === 'Mehmon') {
+        name = "O'yinchi_" + Math.floor(Math.random() * 900 + 100);
     }
+    
+    // Brauzer xotirasiga o'chmaydigan qilib mixlaymiz
+    localStorage.setItem('game_username', name);
+    
+    // Serverga shunchaki yuborib qo'yamiz
+    try {
+        fetch('/api/set-name', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: myUserId, name: name })
+        });
+    } catch (e) { console.error(e); }
 }
 
 // SERVERDAN MA'LUMOT YUKLASH
