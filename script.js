@@ -29,14 +29,14 @@ if (modalAlertBtn) {
     };
 }
 
-// NIKNI MODAL OYNA ORQALI MAJBURIY SO'RASH
+// TAXALLUSNI MODAL ORQALI SO'RASH (QATIY VA TEZKOR VARIANT)
 async function checkPlayerName(state) {
     let currentLocalName = localStorage.getItem('game_username');
+    const nameModal = document.getElementById('name-modal');
     
-    // Agar ism yo'q bo'lsa yoki "Mehmon" bo'lsa, popup ochiladi
+    // Agar ism hali yo'q bo'lsa yoki "Mehmon" bo'lib qolgan bo'lsa, oynani ko'rsatamiz
     if (!currentLocalName || currentLocalName === 'Mehmon' || currentLocalName.trim() === '') {
-        const nameModal = document.getElementById('name-modal');
-        if (nameModal) {
+        if (nameModal && nameModal.style.display !== 'flex') {
             nameModal.style.display = 'flex'; 
             
             document.getElementById('modal-name-btn').onclick = async () => {
@@ -47,17 +47,30 @@ async function checkPlayerName(state) {
                     name = "O'yinchi_" + Math.floor(Math.random() * 900 + 100);
                 }
                 
+                // 1-QADAM: Srazu localda saqlaymiz va oynani yopamiz (aylanma sikl to'xtashi uchun)
                 localStorage.setItem('game_username', name);
                 nameModal.style.display = 'none'; 
                 
+                // 2-QADAM: Serverga tezkorlik bilan yuboramiz
                 try {
                     await fetch('/api/set-name', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ userId: myUserId, name: name })
                     });
+                    
+                    // Server javobidan keyin bazani qayta yuklaymiz
+                    const response = await fetch('/api/game-state', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ userId: myUserId })
+                    });
+                    const data = await response.json();
+                    updateUI(data);
                     loadLeaderboard();
-                } catch (e) { console.error(e); }
+                } catch (e) { 
+                    console.error("Ism yuborishda xato:", e); 
+                }
             };
         }
     }
