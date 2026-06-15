@@ -127,13 +127,32 @@ window.unlockGame = async function(gameId, cost) {
         return;
     }
     try 
-        const response = await fetch(url, {
-    method: 'POST', // yoki 'GET', 'PUT', 'DELETE'
-    headers: {
-        'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(data) // agar ma'lumot yuborilayotgan bo'lsa
-}); // <--- Mana bu yerda qavslar yopilishi kerak
+       // O'YINLARNI SOTIB OLISH FUNKSIYASI (TO'G'RILANGAN VARIANTI)
+window.unlockGame = async function(gameId, cost) {
+    if (currentScore < cost) {
+        alert(`Sizga ${cost} ta tanga kerak! Hozir sizda: ${currentScore} ta bor.`);
+        return;
+    }
+    try {
+        const response = await fetch('/api/unlock-game', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json' 
+            },
+            body: JSON.stringify({ gameId: gameId })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            updateUI(data.state);
+            alert("Tabriklaymiz! O'yin muvaffaqiyatli ochildi.");
+            if (gameId === 'react') resetReactGame();
+        }
+    } catch (e) { 
+        console.error("O'yin ochishda xato:", e); 
+    }
+};
         const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
