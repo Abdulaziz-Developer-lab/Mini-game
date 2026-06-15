@@ -3,18 +3,25 @@ const upgradeBtn = document.getElementById('upgrade-btn');
 const clickBtn = document.getElementById('click-btn');
 const autoclickBtn = document.getElementById('autoclick-btn');
 
+// HAR BIR BRAUZER UCHUN MAXSUS UNIQUE ID YARATISH
+if (!localStorage.getItem('game_user_id')) {
+    localStorage.setItem('game_user_id', 'user_' + Math.random().toString(36).substr(2, 9));
+}
+const myUserId = localStorage.getItem('game_user_id');
+
 let currentScore = 0;
 
 async function loadFromServer() {
     try {
-        const response = await fetch('/api/game-state');
-        if (!response.ok) throw new Error('Server xatosi');
+        const response = await fetch('/api/game-state', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: myUserId })
+        });
         const data = await response.json();
         currentScore = data.score;
         updateUI(data);
-    } catch (error) {
-        console.error("Xato:", error);
-    }
+    } catch (error) { console.error("Xato:", error); }
 }
 
 function updateUI(state) {
@@ -32,7 +39,6 @@ function updateUI(state) {
         autoclickBtn.disabled = state.score < state.autoclickCost;
     }
     
-    // Qulflarni ochish va stikerlarni almashtirish
     Object.keys(state.gamesUnlocked).forEach(game => {
         const lockScreen = document.getElementById(`${game}-lock-screen`);
         const playScreen = document.getElementById(`${game}-play-screen`);
@@ -62,7 +68,7 @@ async function giveServerReward(amount) {
         const response = await fetch('/api/reward', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ amount: amount })
+            body: JSON.stringify({ userId: myUserId, amount: amount })
         });
         const data = await response.json();
         if (data.success) {
@@ -75,7 +81,11 @@ async function giveServerReward(amount) {
 if (clickBtn) {
     clickBtn.onclick = async () => {
         try {
-            const response = await fetch('/api/click', { method: 'POST' });
+            const response = await fetch('/api/click', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: myUserId })
+            });
             const data = await response.json();
             if (data.success) {
                 currentScore = data.score;
@@ -88,7 +98,11 @@ if (clickBtn) {
 if (upgradeBtn) {
     upgradeBtn.onclick = async () => {
         try {
-            const response = await fetch('/api/upgrade', { method: 'POST' });
+            const response = await fetch('/api/upgrade', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: myUserId })
+            });
             const data = await response.json();
             if (data.success) {
                 updateUI(data.state);
@@ -101,7 +115,11 @@ if (upgradeBtn) {
 if (autoclickBtn) {
     autoclickBtn.onclick = async () => {
         try {
-            const response = await fetch('/api/autoclick', { method: 'POST' });
+            const response = await fetch('/api/autoclick', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: myUserId })
+            });
             const data = await response.json();
             if (data.success) {
                 updateUI(data.state);
@@ -120,7 +138,7 @@ window.unlockGame = async function(gameId, cost) {
         const response = await fetch('/api/unlock-game', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ gameId: gameId })
+            body: JSON.stringify({ userId: myUserId, gameId: gameId })
         });
         const data = await response.json();
         if (data.success) {
@@ -139,11 +157,6 @@ window.checkGuess = function() {
     if (!input || !msg) return;
     
     const userGuess = parseInt(input.value);
-    if (isNaN(userGuess)) {
-        msg.textContent = "Iltimos, son kiriting!";
-        return;
-    }
-
     if (userGuess === randomNumber) {
         msg.innerHTML = "<span style='color: #22c55e;'>🎉 To'g'ri! +30 tanga!</span>";
         giveServerReward(30); 
@@ -192,9 +205,7 @@ document.addEventListener('click', function(e) {
             giveServerReward(50); 
             reactBox.style.background = '#3b82f6';
             reactBox.textContent = 'Yana o\'ynash';
-        } else {
-            resetReactGame();
-        }
+        } else { resetReactGame(); }
     }
 });
 
@@ -265,7 +276,11 @@ window.sellCrypto = function() {
 // REYTING VA MENULAR
 async function loadLeaderboard() {
     try {
-        const response = await fetch('/api/leaderboard');
+        const response = await fetch('/api/leaderboard', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: myUserId })
+        });
         if (!response.ok) return;
         const players = await response.json();
         const tbody = document.getElementById('leaderboard-body');
