@@ -3,11 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    
     <meta name="description" content="Mega Arcade Hub 2026 - O'zbekistondagi eng qiziqarli mini-o'yinlar, clickerlar va kripto birja simulyatori platformasi.">
     <meta name="keywords" content="Arcade Hub, Mega Arcade Hub 2026, clicker o'yin, sonni top, uzbek o'yin, mini o'yinlar, online o'yinlar, durovcoin">
     <meta name="author" content="Arcade Hub Developer">
-    
     <title>Mega Arcade Hub 2026 - Mini O'yinlar Portali</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -32,7 +30,6 @@
         </div>
 
         <div class="game-area">
-            
             <div id="clicker-tab" class="tab-content active">
                 <h2>Asosiy Clicker</h2>
                 <button id="click-btn">Meni Bos!</button>
@@ -96,37 +93,34 @@
                             <button onclick="sellCrypto()" style="background: #ef4444;">Sotish</button>
                         </div>
                     </div>
-                    <p><small>*Narx har 3 soniyada o'zgaradi. Arzonligida olib, qimmatida soting!</small></p>
                 </div>
             </div>
 
             <div id="leaderboard-tab" class="tab-content" style="display: none;">
                 <h2>🏆 Peshqadamlar Ro'yxati</h2>
-                <p>Eng ko'p tanga yig'gan o'yinchilar top reytingi:</p>
-                <div class="leaderboard-wrapper">
-                    <table id="leaderboard-table">
-                        <thead>
-                            <tr>
-                                <th>O'rin</th>
-                                <th>O'yinchi</th>
-                                <th>Tangalar 🪙</th>
-                            </tr>
-                        </thead>
-                        <tbody id="leaderboard-body">
-                        </tbody>
-                    </table>
-                </div>
+                <table id="leaderboard-table">
+                    <thead>
+                        <tr><th>O'rin</th><th>O'yinchi</th><th>Tangalar 🪙</th></tr>
+                    </thead>
+                    <tbody id="leaderboard-body"></tbody>
+                </table>
             </div>
-
         </div>
     </div>
-    
+
+    <div id="name-modal" class="custom-modal" style="display: none;">
+        <div class="modal-content">
+            <h3>🎮 Xush kelibsiz!</h3>
+            <p>O'yin uchun nik kiriting:</p>
+            <input type="text" id="modal-name-input" placeholder="Nik..." maxlength="15">
+            <button id="modal-name-btn">O'yinga kirish</button>
+        </div>
     </div>
 
     <div id="alert-modal" class="custom-modal" style="display: none;">
         <div class="modal-content">
-            <h3 id="alert-title">📢 Bildirishnoma</h3>
-            <p id="alert-message">Xabar matni...</p>
+            <h3 id="alert-title">📢</h3>
+            <p id="alert-message"></p>
             <button id="modal-alert-btn">OK</button>
         </div>
     </div>
