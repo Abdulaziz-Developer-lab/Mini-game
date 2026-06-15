@@ -1,7 +1,7 @@
 const scoreDisplay = document.getElementById('score');
 const upgradeBtn = document.getElementById('upgrade-btn');
 const clickBtn = document.getElementById('click-btn');
-const autoclickBtn = document.getElementById('autoclick-btn'); // AVTO-ROBOT TUGMASI
+const autoclickBtn = document.getElementById('autoclick-btn');
 
 let currentScore = 0;
 
@@ -22,7 +22,6 @@ function updateUI(state) {
     if (scoreDisplay) scoreDisplay.textContent = state.score;
     if (document.getElementById('click-power')) document.getElementById('click-power').textContent = state.clickPower;
     
-    // Avto-power qiymatini ekranga chiqarish
     if (document.getElementById('auto-power')) {
         document.getElementById('auto-power').textContent = state.autoPower;
     }
@@ -32,31 +31,33 @@ function updateUI(state) {
         upgradeBtn.disabled = state.score < state.upgradeCost;
     }
 
-    // Avto-Robot tugmasini yangilash
     if (autoclickBtn) {
         autoclickBtn.textContent = `Avto-Robot (${state.autoclickCost})`;
         autoclickBtn.disabled = state.score < state.autoclickCost;
     }
     
-    // O'yinlar ochilgan bo'lsa, qulf ekranini yopib, o'yinni ko'rsatish
+    // Qulflarni ochish va stikerlarni joyiga qaytarish
     Object.keys(state.gamesUnlocked).forEach(game => {
+        const lockScreen = document.getElementById(`${game}-lock-screen`);
+        const playScreen = document.getElementById(`${game}-play-screen`);
+        const navBtn = document.getElementById(`nav-${game}`);
+
         if (state.gamesUnlocked[game]) {
-            const lockScreen = document.getElementById(`${game}-lock-screen`);
-            const playScreen = document.getElementById(`${game}-play-screen`);
-            
             if (lockScreen) lockScreen.style.display = 'none'; 
             if (playScreen) {
                 playScreen.style.display = 'block';
                 playScreen.classList.remove('hidden');
             }
-            
-            const navBtn = document.getElementById(`nav-${game}`);
             if (navBtn) {
                 if (game === 'guess') navBtn.textContent = '🔢 Sonni Top';
                 if (game === 'react') navBtn.textContent = '⚡ Kim Chaqqon?';
                 if (game === 'wheel') navBtn.textContent = '🎡 Omad G\'ildiragi';
                 if (game === 'crypto') navBtn.textContent = '🪙 Kripto Birja';
             }
+        } else {
+            // Agar ochilmagan bo'lsa qulf holatida tursin
+            if (lockScreen) lockScreen.style.display = 'block';
+            if (playScreen) playScreen.style.display = 'none';
         }
     });
 }
@@ -90,7 +91,7 @@ if (upgradeBtn) {
     };
 }
 
-// Avto-Robot tugmasi bosilganda (YANGI QO'SHILDI)
+// Avto-Robot tugmasi
 if (autoclickBtn) {
     autoclickBtn.onclick = async () => {
         try {
@@ -104,8 +105,8 @@ if (autoclickBtn) {
     };
 }
 
-// O'yinlarni sotib olish (Sariq tugma)
-async function unlockGame(gameId, cost) {
+// O'YINLARNI SOTIB OLISH FUNKSIYASI (SARIQ TUGMA)
+window.unlockGame = async function(gameId, cost) {
     if (currentScore < cost) {
         alert(`Sizga ${cost} ta tanga kerak! Hozir sizda: ${currentScore} ta bor.`);
         return;
@@ -123,7 +124,7 @@ async function unlockGame(gameId, cost) {
             if (gameId === 'react') resetReactGame();
         }
     } catch (e) { console.error(e); }
-}
+};
 
 // ==========================================
 // 1. SONNI TOP O'YINI LOGIKASI
@@ -142,7 +143,8 @@ window.checkGuess = function() {
 
     if (userGuess === randomNumber) {
         msg.innerHTML = "<span style='color: #22c55e;'>🎉 To'g'ri! Balansingizga +30 tanga qo'shildi!</span>";
-        giveReward(30);
+        currentScore += 30;
+        if (scoreDisplay) scoreDisplay.textContent = currentScore;
         randomNumber = Math.floor(Math.random() * 50) + 1; 
         input.value = '';
     } else if (userGuess > randomNumber) {
@@ -186,8 +188,9 @@ document.addEventListener('click', function(e) {
             setTimeout(resetReactGame, 1000);
         } else if (reactBox.style.background === 'rgb(34, 197, 94)') {
             const reactionTime = (Date.now() - reactStartTime) / 1000;
-            if (reactResult) reactResult.textContent = `⚡ Vaqtingiz: ${reactionTime} soniya! Muvaffaqiyatli! (+50 tanga)`;
-            giveReward(50);
+            if (reactResult) reactResult.textContent = `⚡ Vaqtingiz: ${reactionTime} soniya! (+50 tanga)`;
+            currentScore += 50;
+            if (scoreDisplay) scoreDisplay.textContent = currentScore;
             reactBox.style.background = '#3b82f6';
             reactBox.textContent = 'Yana o\'ynash';
         } else {
@@ -224,9 +227,10 @@ window.spinWheel = function() {
         
         if (randomReward > 0) {
             result.innerHTML = `<span style='color: #22c55e;'>🎁 Sizga ${randomReward} tanga tushdi!</span>`;
-            giveReward(randomReward);
+            currentScore += randomReward;
+            if (scoreDisplay) scoreDisplay.textContent = currentScore;
         } else {
-            result.innerHTML = "<span style='color: #ef4444;'>😢 Bu safar omad kelmadi, keyingi safar yutasiz!</span>";
+            result.innerHTML = "<span style='color: #ef4444;'>😢 Bu safar omad kelmadi!</span>";
         }
     }, 2000);
 };
@@ -268,13 +272,7 @@ window.sellCrypto = function() {
     }
 };
 
-function giveReward(amount) {
-    currentScore += amount;
-    if (scoreDisplay) scoreDisplay.textContent = currentScore;
-    fetch('/api/click', { method: 'POST' }); 
-}
-
-// LEADERBOARD VA NAVIGATSIYA
+// LEADERBOARD REYTINGI
 async function loadLeaderboard() {
     try {
         const response = await fetch('/api/leaderboard');
@@ -292,6 +290,7 @@ async function loadLeaderboard() {
     } catch (e) { console.error(e); }
 }
 
+// MENULARNI ALMASHTIRISH (TAB)
 window.switchTab = function(tabId) {
     document.querySelectorAll('.tab-content').forEach(tab => {
         tab.classList.remove('active');
