@@ -3,10 +3,10 @@ const upgradeBtn = document.getElementById('upgrade-btn');
 const clickBtn = document.getElementById('click-btn');
 
 let currentScore = 0;
-let reactTimer = null;
-let reactStartTime = 0;
 
-// Serverdan ma'lumotlarni yuklash
+// ==========================================
+// SERVER BILAN ALOQA VA UI YANGILANISHI
+// ==========================================
 async function loadFromServer() {
     try {
         const response = await fetch('/api/game-state');
@@ -22,41 +22,54 @@ async function loadFromServer() {
 function updateUI(state) {
     if (scoreDisplay) scoreDisplay.textContent = state.score;
     if (document.getElementById('click-power')) document.getElementById('click-power').textContent = state.clickPower;
+    
     if (upgradeBtn) {
         upgradeBtn.textContent = `Kuchaytirish (${state.upgradeCost})`;
         upgradeBtn.disabled = state.score < state.upgradeCost;
     }
     
-    // Qulflarni tekshirish va ochish
+    // O'yinlar ochilgan bo'lsa, qulf ekranini yopib, o'yinni ko'rsatish
     Object.keys(state.gamesUnlocked).forEach(game => {
         if (state.gamesUnlocked[game]) {
             const lockScreen = document.getElementById(`${game}-lock-screen`);
             const playScreen = document.getElementById(`${game}-play-screen`);
             
-            if (lockScreen) lockScreen.classList.add('hidden');
-            if (playScreen) playScreen.classList.remove('hidden');
+            if (lockScreen) lockScreen.style.display = 'none'; 
+            if (playScreen) {
+                playScreen.style.display = 'block';
+                playScreen.classList.remove('hidden');
+            }
+            
+            // Menyudagi qulf belgisini olib tashlash va stiker qo'shish
+            const navBtn = document.getElementById(`nav-${game}`);
+            if (navBtn) {
+                if (game === 'guess') navBtn.textContent = '🔢 Sonni Top';
+                if (game === 'react') navBtn.textContent = '⚡ Kim Chaqqon?';
+                if (game === 'wheel') navBtn.textContent = '🎡 Omad G\'ildiragi';
+                if (game === 'crypto') navBtn.textContent = '🪙 Kripto Birja';
+            }
         }
     });
 }
 
-// Clicker mexanikasi
+// Clicker tugmasi
 if (clickBtn) {
-    clickBtn.addEventListener('click', async () => {
+    clickBtn.onclick = async () => {
         try {
             const response = await fetch('/api/click', { method: 'POST' });
             const data = await response.json();
             if (data.success) {
-                if (scoreDisplay) scoreDisplay.textContent = data.score;
                 currentScore = data.score;
+                if (scoreDisplay) scoreDisplay.textContent = data.score;
                 loadFromServer(); 
             }
         } catch (e) { console.error(e); }
-    });
+    };
 }
 
-// Kuchaytirish mexanikasi
+// Kuchaytirish tugmasi
 if (upgradeBtn) {
-    upgradeBtn.addEventListener('click', async () => {
+    upgradeBtn.onclick = async () => {
         try {
             const response = await fetch('/api/upgrade', { method: 'POST' });
             const data = await response.json();
@@ -65,10 +78,10 @@ if (upgradeBtn) {
                 currentScore = data.state.score;
             }
         } catch (e) { console.error(e); }
-    });
+    };
 }
 
-// O'yin qulfini ochish
+// O'yinlarni sotib olish (Sariq tugma)
 async function unlockGame(gameId, cost) {
     if (currentScore < cost) {
         alert(`Sizga ${cost} ta tanga kerak! Hozir sizda: ${currentScore} ta bor.`);
@@ -83,81 +96,166 @@ async function unlockGame(gameId, cost) {
         const data = await response.json();
         if (data.success) {
             updateUI(data.state);
-            alert("O'yin ochildi! Endi o'ynashingiz mumkin.");
-            if(gameId === 'react') initReactGame(); // Kim chaqqon o'yinini tayyorlash
+            alert("Tabriklaymiz! O'yin muvaffaqiyatli ochildi.");
+            if (gameId === 'react') resetReactGame();
         }
     } catch (e) { console.error(e); }
 }
 
 // ==========================================
-// 1. KIM CHAQQON? (SEKUNDOMER / REACT GAME)
-// ==========================================
-const reactBox = document.getElementById('react-box');
-const reactResult = document.getElementById('react-result');
-
-function initReactGame() {
-    if (!reactBox) return;
-    reactBox.style.background = '#ef4444';
-    reactBox.textContent = 'Kuting...';
-    reactResult.textContent = '';
-    
-    const randomDelay = Math.random() * 3000 + 2000; // 2-5 soniya kutish
-    
-    reactTimer = setTimeout(() => {
-        reactBox.style.background = '#22c55e'; // Yashil rang
-        reactBox.textContent = 'BOSING!!!';
-        reactStartTime = Date.now(); // Sekundomer boshlandi
-    }, randomDelay);
-}
-
-if (reactBox) {
-    reactBox.addEventListener('click', async () => {
-        if (reactBox.style.background === 'rgb(239, 68, 68)') { // Qizil holatda bossa
-            clearTimeout(reactTimer);
-            reactResult.textContent = 'Erta bosdingiz! Qaytadan urining.';
-            initReactGame();
-        } else if (reactBox.style.background === 'rgb(34, 197, 94)') { // Yashil holatda bossa
-            const endTime = Date.now();
-            const reactionTime = (endTime - reactStartTime) / 1000; // Sekundni hisoblash
-            reactResult.textContent = `Sizning vaqtingiz: ${reactionTime} soniya!`;
-            reactBox.style.background = '#3b82f6';
-            reactBox.textContent = 'Yana o\'ynash';
-            
-            // Mukofot berish (Masalan: 50 tanga)
-            try {
-                // Serverga yutuqni yuborish qismi (ixtiyoriy, hozircha lokal qo'shamiz)
-                currentScore += 50;
-                if (scoreDisplay) scoreDisplay.textContent = currentScore;
-            } catch(e) {}
-        } else {
-            initReactGame();
-        }
-    });
-}
-
-// ==========================================
-// 2. SONNI TOP O'YINI
+// 1. SONNI TOP O'YINI LOGIKASI
 // ==========================================
 let randomNumber = Math.floor(Math.random() * 50) + 1;
-function checkGuess() {
+window.checkGuess = function() {
     const input = document.getElementById('guess-input');
     const msg = document.getElementById('guess-message');
-    if(!input || !msg) return;
+    if (!input || !msg) return;
     
     const userGuess = parseInt(input.value);
-    if (userGuess === randomNumber) {
-        msg.textContent = "Tabriklaymiz! To'g'ri topdingiz va 30 tanga yutdingiz!";
-        currentScore += 30;
-        if (scoreDisplay) scoreDisplay.textContent = currentScore;
-        randomNumber = Math.floor(Math.random() * 50) + 1; // Yangi son
-    } else if (userGuess > randomNumber) {
-        msg.textContent = "Kattaroq son yozdingiz, kichikroq o'ylang.";
-    } else {
-        msg.textContent = "Kichikroq son yozdingiz, kattaroq o'ylang.";
+    if (isNaN(userGuess)) {
+        msg.textContent = "Iltimos, son kiriting!";
+        return;
     }
+
+    if (userGuess === randomNumber) {
+        msg.innerHTML = "<span style='color: #22c55e;'>🎉 To'g'ri! Balansingizga +30 tanga qo'shildi!</span>";
+        giveReward(30);
+        randomNumber = Math.floor(Math.random() * 50) + 1; // Yangi son o'ylash
+        input.value = '';
+    } else if (userGuess > randomNumber) {
+        msg.textContent = "📉 Kichikroq son o'ylang.";
+    } else {
+        msg.textContent = "📈 Kattaroq son o'ylang.";
+    }
+};
+
+// ==========================================
+// 2. KIM CHAQQON? (SEKUNDOMER LOGIKASI)
+// ==========================================
+let reactTimer = null;
+let reactStartTime = 0;
+function resetReactGame() {
+    const reactBox = document.getElementById('react-box');
+    const reactResult = document.getElementById('react-result');
+    if (!reactBox) return;
+    
+    clearTimeout(reactTimer);
+    reactBox.style.background = '#ef4444';
+    reactBox.textContent = 'Kuting...';
+    if (reactResult) reactResult.textContent = '';
+    
+    const delay = Math.random() * 3000 + 2000; // 2-5 soniya delay
+    reactTimer = setTimeout(() => {
+        reactBox.style.background = '#22c55e';
+        reactBox.textContent = 'BOSING!!!';
+        reactStartTime = Date.now();
+    }, delay);
 }
 
-// Leaderboardni yuklash
+document.addEventListener('click', function(e) {
+    if (e.target && e.target.id === 'react-box') {
+        const reactBox = e.target;
+        const reactResult = document.getElementById('react-result');
+        
+        if (reactBox.style.background === 'rgb(239, 68, 68)' || reactBox.textContent === 'Kuting...') {
+            clearTimeout(reactTimer);
+            if (reactResult) reactResult.textContent = '❌ Erta bosdingiz! Qaytadan boshlanmoqda...';
+            setTimeout(resetReactGame, 1000);
+        } else if (reactBox.style.background === 'rgb(34, 197, 94)') {
+            const reactionTime = (Date.now() - reactStartTime) / 1000;
+            if (reactResult) reactResult.textContent = `⚡ Vaqtingiz: ${reactionTime} soniya! Muvaffaqiyatli! (+50 tanga)`;
+            giveReward(50);
+            reactBox.style.background = '#3b82f6';
+            reactBox.textContent = 'Yana o\'ynash';
+        } else {
+            resetReactGame();
+        }
+    }
+});
+
+// ==========================================
+// 3. OMAD G'ILDIRAGI LOGIKASI
+// ==========================================
+window.spinWheel = function() {
+    if (currentScore < 20) {
+        alert("Aylantirish uchun 20 tanga kerak!");
+        return;
+    }
+    const wheel = document.getElementById('wheel');
+    const result = document.getElementById('wheel-result');
+    if (!wheel || !result) return;
+
+    currentScore -= 20; // Narxini ayirish
+    if (scoreDisplay) scoreDisplay.textContent = currentScore;
+
+    result.textContent = "Aylanmoqda... 🎰";
+    wheel.style.transform = "rotate(1080deg)";
+    wheel.style.transition = "transform 2s ease-out";
+
+    setTimeout(() => {
+        wheel.style.transform = "rotate(0deg)";
+        wheel.style.transition = "none";
+        
+        const rewards = [0, 10, 35, 50, 100];
+        const randomReward = rewards[Math.floor(Math.random() * rewards.length)];
+        
+        if (randomReward > 0) {
+            result.innerHTML = `<span style='color: #22c55e;'>🎁 Sizga ${randomReward} tanga tushdi!</span>`;
+            giveReward(randomReward);
+        } else {
+            result.innerHTML = "<span style='color: #ef4444;'>😢 Bu safar omad kelmadi, keyingi safar yutasiz!</span>";
+        }
+    }, 2000);
+};
+
+// ==========================================
+// 4. KRIPTO BIRJA LOGIKASI
+// ==========================================
+let cryptoPrice = 100;
+let myCryptoCount = 0;
+
+setInterval(() => {
+    const priceTxt = document.getElementById('crypto-price');
+    if (priceTxt) {
+        let change = Math.floor(Math.random() * 41) - 20; // -20 dan +20 gacha o'zgarish
+        cryptoPrice = Math.max(10, cryptoPrice + change);
+        priceTxt.textContent = cryptoPrice;
+    }
+}, 3000);
+
+window.buyCrypto = function() {
+    if (currentScore >= cryptoPrice) {
+        currentScore -= cryptoPrice;
+        myCryptoCount++;
+        if (scoreDisplay) scoreDisplay.textContent = currentScore;
+        document.getElementById('my-crypto').textContent = myCryptoCount;
+    } else {
+        alert("Kripto sotib olish uchun tangangiz yetarli emas!");
+    }
+};
+
+window.sellCrypto = function() {
+    if (myCryptoCount > 0) {
+        myCryptoCount--;
+        currentScore += cryptoPrice;
+        if (scoreDisplay) scoreDisplay.textContent = currentScore;
+        document.getElementById('my-crypto').textContent = myCryptoCount;
+    } else {
+        alert("Sizda sotish uchun DurovCoin yo'q!");
+    }
+};
+
+// Tanganing hisobini mukofot bilan to'ldirish funksiyasi
+function giveReward(amount) {
+    currentScore += amount;
+    if (scoreDisplay) scoreDisplay.textContent = currentScore;
+    // Server bilan sinxronlash
+    fetch('/api/click', { method: 'POST' }); // Server hisobini ham oshirish uchun oddiy so'rov
+}
+
+// ==========================================
+// LEADERBOARD VA NAVIGATSIYA (TAB)
+// ==========================================
 async function loadLeaderboard() {
     try {
         const response = await fetch('/api/leaderboard');
@@ -175,18 +273,26 @@ async function loadLeaderboard() {
     } catch (e) { console.error(e); }
 }
 
-// Menularni almashtirish
-function switchTab(tabId) {
-    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+window.switchTab = function(tabId) {
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+        tab.style.display = 'none';
+    });
     document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
     
     const activeTab = document.getElementById(tabId);
-    if (activeTab) activeTab.classList.add('active');
+    if (activeTab) {
+        activeTab.classList.add('active');
+        activeTab.style.display = 'block';
+    }
+    
+    const clickedBtn = document.querySelector(`[onclick="switchTab('${tabId}')"]`);
+    if (clickedBtn) clickedBtn.classList.add('active');
     
     if (tabId === 'react-tab') {
-        initReactGame(); // Tabga o'tganda o'yinni srazu start qilish
+        resetReactGame();
     }
-}
+};
 
 setInterval(loadFromServer, 1000);
 setInterval(loadLeaderboard, 3000);
