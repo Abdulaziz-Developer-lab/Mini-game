@@ -6,12 +6,13 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
-// HAR BIR AKKAUNT UCHUN ALOHIDA XOTIRA BAZASI
+// GLOBAL FOYDALANUVCHILAR BAZASI
 let userScores = {};
 
 function getUserState(userId) {
     if (!userScores[userId]) {
         userScores[userId] = {
+            name: "Mehmon",
             score: 0,
             clickPower: 1,
             upgradeCost: 10,
@@ -23,11 +24,14 @@ function getUserState(userId) {
     return userScores[userId];
 }
 
-let leaderboardData = [
-    { name: "Alisher_Pro", score: 2500 },
-    { name: "Jasur_Clicker", score: 1850 },
-    { name: "Sardor_Dev", score: 1200 }
-];
+// ISMNI SAQLASH API
+app.post('/api/set-name', (req, res) => {
+    const { userId, name } = req.body;
+    if (!userId || !name) return res.status(400).json({ error: "Ma'lumot chala!" });
+    let state = getUserState(userId);
+    state.name = name.substring(0, 15); // Ism juda uzun bo'lib ketmasligi uchun
+    res.json({ success: true, state });
+});
 
 app.post('/api/game-state', (req, res) => {
     const { userId } = req.body;
@@ -96,18 +100,22 @@ app.post('/api/reward', (req, res) => {
     }
 });
 
-app.post('/api/leaderboard', (req, res) => {
-    const { userId } = req.body;
-    let state = getUserState(userId);
+// GLOBAL REYTING (HAMMANI BALINI CHIQARADI)
+app.get('/api/global-leaderboard', (req, res) => {
+    let list = Object.keys(userScores).map(id => {
+        return { name: userScores[id].name, score: userScores[id].score };
+    });
     
-    let currentLeaderboard = [...leaderboardData];
-    currentLeaderboard.push({ name: "Siz (Sinfdoshingiz)", score: state.score });
-    
-    let sortedData = currentLeaderboard.sort((a, b) => b.score - a.score);
-    res.json(sortedData);
+    // Agar baza bo'sh bo'lsa, test uchun botlar
+    if (list.length === 0) {
+        list = [{ name: "Alisher_Pro", score: 500 }, { name: "Sardor_Dev", score: 250 }];
+    }
+
+    // Eng ko'p baldan kamiga qarab saralash
+    let sorted = list.sort((a, b) => b.score - a.score);
+    res.json(sorted);
 });
 
-// Avto-robot har bir foydalanuvchiga alohida ishlaydi
 setInterval(() => {
     Object.keys(userScores).forEach(userId => {
         if (userScores[userId].autoPower > 0) {
