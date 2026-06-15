@@ -10,7 +10,6 @@ const myUserId = localStorage.getItem('game_user_id');
 
 let currentScore = 0;
 
-// NEON POPUP BILDIRISHNOMA
 function showCustomAlert(title, message) {
     const alertModal = document.getElementById('alert-modal');
     if (alertModal) {
@@ -28,32 +27,46 @@ if (modalAlertBtn) {
     };
 }
 
-// TAXALLUSNI BRAUZER ORQALI SO'RASH (QAYTIB UMUMAN CHIQMAYDI)
+// CHIROYLI OYNANI TEKSHIRISH VA YO'QOTISH MANTIQI
 function checkPlayerName() {
+    const nameModal = document.getElementById('name-modal');
     let savedName = localStorage.getItem('game_username');
     
+    // 1. Agar xotirada ism bo'lsa, oynani ochmaymiz va kodni to'xtatamiz!
     if (savedName && savedName !== 'Mehmon' && savedName.trim() !== '') {
+        if (nameModal) nameModal.style.display = 'none';
         return; 
     }
     
-    let name = prompt("🎮 Xush kelibsiz! O'yin uchun taxallus (nik) kiriting:", "Abdulaziz");
-    
-    if (!name || name.trim() === '' || name === 'Mehmon') {
-        name = "O'yinchi_" + Math.floor(Math.random() * 900 + 100);
+    // 2. Agar ism bo'lmasa, o'sha chiroyli neon oynani ko'rsatamiz
+    if (nameModal) {
+        nameModal.style.display = 'flex'; 
+        
+        document.getElementById('modal-name-btn').onclick = async () => {
+            const input = document.getElementById('modal-name-input');
+            let name = input ? input.value.trim() : "";
+            
+            if (!name || name === 'Mehmon') {
+                name = "O'yinchi_" + Math.floor(Math.random() * 900 + 100);
+            }
+            
+            // ISMNI XOTIRAGA MIXLAB, OYNANI BUTUNLAY KO'ZDAN YO'QOTAMIZ
+            localStorage.setItem('game_username', name);
+            nameModal.style.display = 'none'; 
+            
+            try {
+                fetch('/api/set-name', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: myUserId, name: name })
+                });
+            } catch (e) { console.error(e); }
+            
+            loadLeaderboard();
+        };
     }
-    
-    localStorage.setItem('game_username', name);
-    
-    try {
-        fetch('/api/set-name', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: myUserId, name: name })
-        });
-    } catch (e) { console.error(e); }
 }
 
-// SERVERDAN MA'LUMOT YUKLASH
 async function loadFromServer() {
     try {
         const response = await fetch('/api/game-state', {
@@ -172,7 +185,6 @@ if (autoclickBtn) {
     };
 }
 
-// MINI-O'YINLARNI SOTIB OLISH
 window.unlockGame = async function(gameId, cost) {
     if (currentScore < cost) {
         showCustomAlert("⚠️ Mablag' yetarli emas", `Sizga ${cost} ta tanga kerak! Hozir sizda: ${currentScore} ta bor.`);
@@ -193,7 +205,6 @@ window.unlockGame = async function(gameId, cost) {
     } catch (e) { console.error(e); }
 };
 
-// SONNI TOP MINI-O'YINI
 let randomNumber = Math.floor(Math.random() * 50) + 1;
 window.checkGuess = function() {
     const input = document.getElementById('guess-input');
@@ -213,7 +224,6 @@ window.checkGuess = function() {
     }
 };
 
-// KIM CHAQQON MINI-O'YINI
 let reactTimer = null;
 let reactStartTime = 0;
 function resetReactGame() {
@@ -253,7 +263,6 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// OMAD G'ILDIRAGI MINI-O'YINI
 window.spinWheel = function() {
     if (currentScore < 20) {
         showCustomAlert("⚠️ Diqqat", "Aylantirish uchun 20 tanga kerak!");
@@ -286,7 +295,6 @@ window.spinWheel = function() {
     }, 2000);
 };
 
-// KRIPTO BIRJA
 let cryptoPrice = 100;
 let myCryptoCount = 0;
 
@@ -317,7 +325,6 @@ window.sellCrypto = function() {
     } else { showCustomAlert("⚠️ Xatolik", "Sizda DurovCoin yo'q!"); }
 };
 
-// GLOBAL REYTING JADVALI
 async function loadLeaderboard() {
     try {
         const response = await fetch('/api/global-leaderboard');
@@ -352,12 +359,11 @@ window.switchTab = function(tabId) {
     if (tabId === 'react-tab') resetReactGame();
 };
 
-// TAYMERLAR VA YUKLASH
 setInterval(loadFromServer, 1000);
 setInterval(loadLeaderboard, 3000);
 
 window.onload = async () => { 
     await loadFromServer(); 
-    checkPlayerName(); 
+    checkPlayerName(); // CHOSHLANISHDA NEON OYNANI ISHGA TUSHIRISH
     loadLeaderboard(); 
 };
