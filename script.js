@@ -1,3 +1,11 @@
+// NIK FUNKSIYASI
+window.onload = () => {
+    let username = localStorage.getItem('game_username');
+    if (!username) {
+        username = prompt("Leaderboard uchun nikingizni yozing:");
+        localStorage.setItem('game_username', username || "Mehmon");
+    }
+};
 const scoreDisplay = document.getElementById('score');
 const upgradeBtn = document.getElementById('upgrade-btn');
 const clickBtn = document.getElementById('click-btn');
