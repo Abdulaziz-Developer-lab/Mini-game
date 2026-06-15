@@ -35,10 +35,10 @@
                     <button id="upgrade-btn" disabled>Kuchaytirish (Narxi: 10)</button>
                     <button id="autoclick-btn" disabled>Avto-Robot (Narxi: 50)</button>
                 </div>
-                <p><small>Bosish: +<span id="click-power">1</span> | Avto: +<span id="auto-power">0</span>/s</small></p>
+                <p style="margin-top: 15px;"><small>Bosish: +<span id="click-power">1</span> | Avto: +<span id="auto-power">0</span>/s</small></p>
             </div>
 
-            <div id="guess-tab" class="tab-content">
+            <div id="guess-tab" class="tab-content" style="display: none;">
                 <h2>🔒 Sonni Top</h2>
                 <div class="locked-content" id="guess-lock-screen">
                     <button class="buy-btn" onclick="unlockGame('guess', 100)">Ochish (100 tanga)</button>
@@ -51,7 +51,7 @@
                 </div>
             </div>
 
-            <div id="react-tab" class="tab-content">
+            <div id="react-tab" class="tab-content" style="display: none;">
                 <h2>🔒 Kim Chaqqon?</h2>
                 <div class="locked-content" id="react-lock-screen">
                     <button class="buy-btn" onclick="unlockGame('react', 300)">Ochish (300 tanga)</button>
@@ -63,22 +63,20 @@
                 </div>
             </div>
 
-            <div id="wheel-tab" class="tab-content">
+            <div id="wheel-tab" class="tab-content" style="display: none;">
                 <h2>🔒 Omad G'ildiragi</h2>
                 <div class="locked-content" id="wheel-lock-screen">
                     <button class="buy-btn" onclick="unlockGame('wheel', 500)">Ochish (500 tanga)</button>
                 </div>
                 <div class="game-play hidden" id="wheel-play-screen">
                     <p>Aylantirish 20 tanga turadi. Katta yutuq yutib oling!</p>
-                    <div class="wheel-container">
-                        <div id="wheel">🎰</div>
-                    </div>
+                    <div style="font-size: 4rem; margin: 20px 0;" id="wheel">🎰</div>
                     <button id="spin-btn" onclick="spinWheel()">Aylantirish (-20 🪙)</button>
                     <p id="wheel-result"></p>
                 </div>
             </div>
 
-            <div id="crypto-tab" class="tab-content">
+            <div id="crypto-tab" class="tab-content" style="display: none;">
                 <h2>🔒 Kripto Birja</h2>
                 <div class="locked-content" id="crypto-lock-screen">
                     <button class="buy-btn" onclick="unlockGame('crypto', 1000)">Ochish (1000 tanga)</button>
@@ -97,23 +95,21 @@
                 </div>
             </div>
 
-            <div id="leaderboard-tab" class="tab-content">
+            <div id="leaderboard-tab" class="tab-content" style="display: none;">
                 <h2>🏆 Peshqadamlar Ro'yxati</h2>
                 <p>Eng ko'p tanga yig'gan o'yinchilar top reytingi:</p>
-                <div class="leaderboard-box">
-                    <div class="leaderboard-wrapper">
-                        <table id="leaderboard-table">
-                            <thead>
-                                <tr>
-                                    <th>O'rin</th>
-                                    <th>O'yinchi</th>
-                                    <th>Tangalar 🪙</th>
-                                </tr>
-                            </thead>
-                            <tbody id="leaderboard-body">
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="leaderboard-wrapper">
+                    <table id="leaderboard-table">
+                        <thead>
+                            <tr>
+                                <th>O'rin</th>
+                                <th>O'yinchi</th>
+                                <th>Tangalar 🪙</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboard-body">
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
