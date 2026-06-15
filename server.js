@@ -43,6 +43,20 @@ app.post('/api/upgrade', (req, res) => {
     }
 });
 
+// YANGI QO'SHILGAN JOY: O'yinlarni sotib olish (ochish) API yo'lagi
+app.post('/api/unlock-game', (req, res) => {
+    const { gameId } = req.body;
+    const cost = 100; // o'yin narxi
+
+    if (serverState.score >= cost) {
+        serverState.score -= cost;
+        serverState.gamesUnlocked[gameId] = true;
+        res.json({ success: true, state: serverState });
+    } else {
+        res.status(400).json({ success: false, message: "Tangalaringiz yetarli emas!" });
+    }
+});
+
 app.get('/api/leaderboard', (req, res) => {
     leaderboardData[3].score = serverState.score;
     let sortedData = [...leaderboardData].sort((a, b) => b.score - a.score);
