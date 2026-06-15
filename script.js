@@ -29,9 +29,12 @@ if (modalAlertBtn) {
     };
 }
 
-// TAXALLUSNI MODAL ORQALI SO'RASH
+// TAXALLUSNI MODAL ORQALI SO'RASH (MAJBURIY VARIANT)
 async function checkPlayerName(state) {
-    if (!localStorage.getItem('game_username') || localStorage.getItem('game_username') === 'Mehmon') {
+    let currentLocalName = localStorage.getItem('game_username');
+    
+    // Agar ism hali yo'q bo'lsa yoki "Mehmon" bo'lib qolgan bo'lsa, oynani ochamiz
+    if (!currentLocalName || currentLocalName === 'Mehmon' || currentLocalName.trim() === '') {
         const nameModal = document.getElementById('name-modal');
         if (nameModal) {
             nameModal.style.display = 'flex'; 
@@ -40,7 +43,9 @@ async function checkPlayerName(state) {
                 const input = document.getElementById('modal-name-input');
                 let name = input ? input.value.trim() : "";
                 
-                if (!name) name = "Foydalanuvchi_" + Math.floor(Math.random() * 900 + 100);
+                if (!name || name === 'Mehmon') {
+                    name = "O'yinchi_" + Math.floor(Math.random() * 900 + 100);
+                }
                 
                 localStorage.setItem('game_username', name);
                 nameModal.style.display = 'none'; 
