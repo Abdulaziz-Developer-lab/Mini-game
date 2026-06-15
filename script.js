@@ -120,14 +120,16 @@ if (autoclickBtn) {
     };
 }
 
-// O'YINLARNI SOTIB OLISH FUNKSIYASI (SARIQ TUGMA)
+// O'YINLARNI SOTIB OLISH FUNKSIYASI (MANA SHU QISM TO'LIQ VA TO'G'RI VARIANTI)
 window.unlockGame = async function(gameId, cost) {
     if (currentScore < cost) {
         alert(`Sizga ${cost} ta tanga kerak! Hozir sizda: ${currentScore} ta bor.`);
         return;
     }
     try {
-        const response = await fetch('/api/unlock-game', {
+        const url = window.location.origin + '/api/unlock-game';
+        
+        const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ gameId: gameId })
