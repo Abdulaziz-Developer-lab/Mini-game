@@ -3,15 +3,14 @@ const upgradeBtn = document.getElementById('upgrade-btn');
 const clickBtn = document.getElementById('click-btn');
 
 let currentScore = 0;
-let gamesUnlocked = { guess: false, react: false, wheel: false, crypto: false };
 
+// Serverdan ma'lumotlarni yuklash va UI ni yangilash
 async function loadFromServer() {
     try {
         const response = await fetch('/api/game-state');
         if (!response.ok) throw new Error('Server xatosi');
         const data = await response.json();
         currentScore = data.score;
-        gamesUnlocked = data.gamesUnlocked;
         updateUI(data);
     } catch (error) {
         console.error("Xato:", error);
@@ -26,17 +25,19 @@ function updateUI(state) {
         upgradeBtn.disabled = state.score < state.upgradeCost;
     }
     
-    // Qaysi o'yin ochilgan bo'lsa, qulf ekranini yashirish logikasi
+    // O'yinlar ochilgan bo'lsa, qulfni ochib haqiqiy o'yinni ko'rsatish
     Object.keys(state.gamesUnlocked).forEach(game => {
         if (state.gamesUnlocked[game]) {
-            const lockScreen = document.getElementById(`${game}-lock`);
-            if (lockScreen) lockScreen.style.display = 'none'; // qulf oynasini berkitadi
-            const gameScreen = document.getElementById(`${game}-actual-game`);
-            if (gameScreen) gameScreen.style.display = 'block'; // haqiqiy o'yinni ko'rsatadi
+            const lockScreen = document.getElementById(`${game}-lock-screen`);
+            const playScreen = document.getElementById(`${game}-play-screen`);
+            
+            if (lockScreen) lockScreen.classList.add('hidden'); // Qulf oynasini yopish
+            if (playScreen) playScreen.classList.remove('hidden'); // Haqiqiy o'yinni ochish
         }
     });
 }
 
+// Clicker tugmasi bosilganda
 if (clickBtn) {
     clickBtn.addEventListener('click', async () => {
         try {
@@ -51,6 +52,7 @@ if (clickBtn) {
     });
 }
 
+// Kuchaytirish (Upgrade) tugmasi bosilganda
 if (upgradeBtn) {
     upgradeBtn.addEventListener('click', async () => {
         try {
@@ -64,10 +66,10 @@ if (upgradeBtn) {
     });
 }
 
-// O'yin sotib olish sariq tugmasi bosilganda ishlaydi
-async function buyGame(gameId) {
-    if (currentScore < 100) {
-        alert("Sariq tugmani bosish uchun kamida 100 ta tanganiz bo'lishi kerak!");
+// HTML dagi sariq tugma (unlockGame) bosilganda ishlaydigan funksiya
+async function unlockGame(gameId, cost) {
+    if (currentScore < cost) {
+        alert(`Sariq tugmani bosish uchun sizga ${cost} ta tanga kerak! Hozir sizda: ${currentScore} ta bor.`);
         return;
     }
     try {
@@ -79,11 +81,12 @@ async function buyGame(gameId) {
         const data = await response.json();
         if (data.success) {
             updateUI(data.state);
-            alert("Tabriklaymiz! O'yin ochildi.");
+            alert("Tabriklaymiz! O'yin muvaffaqiyatli ochildi.");
         }
     } catch (e) { console.error(e); }
 }
 
+// Leaderboardni yuklash
 async function loadLeaderboard() {
     try {
         const response = await fetch('/api/leaderboard');
@@ -101,21 +104,19 @@ async function loadLeaderboard() {
     } catch (e) { console.error(e); }
 }
 
-setInterval(loadFromServer, 1000);
-setInterval(loadLeaderboard, 3000);
-window.onload = () => { loadFromServer(); loadLeaderboard(); };
-
+// Tablarni (Menularni) almashtirish funksiyasi
 function switchTab(tabId) {
     document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
     
     const activeTab = document.getElementById(tabId);
     if (activeTab) activeTab.classList.add('active');
+    
+    // Bosilgan menyu tugmasini aktiv qilish
+    const clickedBtn = document.querySelector(`[onclick="switchTab('${tabId}')"]`);
+    if (clickedBtn) clickedBtn.classList.add('active');
 }
 
-function unlockGame(gameId) {
-    if (!gameId) return;
-    
-    let cleanId = gameId.replace('-tab', '');
-    switchTab(cleanId + '-tab');
-}
+setInterval(loadFromServer, 1000);
+setInterval(loadLeaderboard, 3000);
+window.onload = () => { loadFromServer(); loadLeaderboard(); };
