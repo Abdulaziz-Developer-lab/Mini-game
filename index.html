@@ -1,17 +1,6 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-    <style>
-    .leaderboard-wrapper {
-        width: 100%;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-    table {
-        width: 100%;
-        min-width: 280px;
-    }
-</style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Mega Arcade Hub 2026</title>
@@ -112,8 +101,6 @@
                 <h2>🏆 Peshqadamlar Ro'yxati</h2>
                 <p>Eng ko'p tanga yig'gan o'yinchilar top reytingi:</p>
                 <div class="leaderboard-box">
-                    
-                    <!-- MANA SHU YERDA JADVAL "leaderboard-wrapper" BILAN CHIROYLI O'RAB QO'YILDI -->
                     <div class="leaderboard-wrapper">
                         <table id="leaderboard-table">
                             <thead>
@@ -126,11 +113,27 @@
                             <tbody id="leaderboard-body">
                             </tbody>
                         </table>
-                    </div> <!-- O'RAM SHU YERDA YOPILDI -->
-
+                    </div>
                 </div>
             </div>
 
+        </div>
+    </div>
+
+    <div id="name-modal" class="custom-modal" style="display: none;">
+        <div class="modal-content">
+            <h3>🎮 Xush kelibsiz!</h3>
+            <p>O'yin uchun o'zingizga chiroyli taxallus (nik) kiriting:</p>
+            <input type="text" id="modal-name-input" placeholder="Nikni yozing..." maxlength="15">
+            <button id="modal-name-btn">O'yinga kirish</button>
+        </div>
+    </div>
+
+    <div id="alert-modal" class="custom-modal" style="display: none;">
+        <div class="modal-content">
+            <h3 id="alert-title">📢 Bildirishnoma</h3>
+            <p id="alert-message">Xabar matni...</p>
+            <button id="modal-alert-btn">OK</button>
         </div>
     </div>
 
