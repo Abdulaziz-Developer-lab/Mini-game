@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mega Arcade Hub 2026</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="main-container">
+        <div class="sidebar">
+            <h2>Arcade Hub</h2>
+            <div class="balance-box">
+                <p>Sizning balansingiz:</p>
+                <div id="score">0</div>
+                <p>tangalar</p>
+            </div>
+            <nav>
+                <button class="nav-btn active" onclick="switchTab('clicker-tab')">👆 Clicker</button>
+                <button class="nav-btn" id="nav-guess" onclick="switchTab('guess-tab')">🔒 Sonni Top</button>
+                <button class="nav-btn" id="nav-react" onclick="switchTab('react-tab')">🔒 Kim Chaqqon?</button>
+                <button class="nav-btn" id="nav-wheel" onclick="switchTab('wheel-tab')">🔒 Omad G'ildiragi</button>
+                <button class="nav-btn" id="nav-crypto" onclick="switchTab('crypto-tab')">🔒 Kripto Birja</button>
+                <button class="nav-btn" id="nav-leaderboard" onclick="switchTab('leaderboard-tab')">🏆 Leaderboard</button>
+            </nav>
+        </div>
+
+        <div class="game-area">
+            
+            <div id="clicker-tab" class="tab-content active">
+                <h2>Asosiy Clicker</h2>
+                <button id="click-btn">Meni Bos!</button>
+                <div class="shop">
+                    <button id="upgrade-btn" disabled>Kuchaytirish (Narxi: 10)</button>
+                    <button id="autoclick-btn" disabled>Avto-Robot (Narxi: 50)</button>
+                </div>
+                <p><small>Bosish: +<span id="click-power">1</span> | Avto: +<span id="auto-power">0</span>/s</small></p>
+            </div>
+
+            <div id="guess-tab" class="tab-content">
+                <h2>🔒 Sonni Top</h2>
+                <div class="locked-content" id="guess-lock-screen">
+                    <button class="buy-btn" onclick="unlockGame('guess', 100)">Ochish (100 tanga)</button>
+                </div>
+                <div class="game-play hidden" id="guess-play-screen">
+                    <p>Kompyuter 1 dan 50 gacha son o'yladi. Uni toping va 30 tanga yuting!</p>
+                    <input type="number" id="guess-input" placeholder="Son...">
+                    <button onclick="checkGuess()">Tekshirish</button>
+                    <p id="guess-message"></p>
+                </div>
+            </div>
+
+            <div id="react-tab" class="tab-content">
+                <h2>🔒 Kim Chaqqon?</h2>
+                <div class="locked-content" id="react-lock-screen">
+                    <button class="buy-btn" onclick="unlockGame('react', 300)">Ochish (300 tanga)</button>
+                </div>
+                <div class="game-play hidden" id="react-play-screen">
+                    <p>Yashil bo'lgan zahoti bosing!</p>
+                    <div id="react-box">Kuting...</div>
+                    <p id="react-result"></p>
+                </div>
+            </div>
+
+            <div id="wheel-tab" class="tab-content">
+                <h2>🔒 Omad G'ildiragi</h2>
+                <div class="locked-content" id="wheel-lock-screen">
+                    <button class="buy-btn" onclick="unlockGame('wheel', 500)">Ochish (500 tanga)</button>
+                </div>
+                <div class="game-play hidden" id="wheel-play-screen">
+                    <p>Aylantirish 20 tanga turadi. Katta yutuq yutib oling!</p>
+                    <div class="wheel-container">
+                        <div id="wheel">🎰</div>
+                    </div>
+                    <button id="spin-btn" onclick="spinWheel()">Aylantirish (-20 🪙)</button>
+                    <p id="wheel-result"></p>
+                </div>
+            </div>
+
+            <div id="crypto-tab" class="tab-content">
+                <h2>🔒 Kripto Birja</h2>
+                <div class="locked-content" id="crypto-lock-screen">
+                    <button class="buy-btn" onclick="unlockGame('crypto', 1000)">Ochish (1000 tanga)</button>
+                </div>
+                <div class="game-play hidden" id="crypto-play-screen">
+                    <div class="crypto-card">
+                        <h3>🪙 DurovCoin (DRV)</h3>
+                        <p>Joriy narx: <strong id="crypto-price" style="color: #eab308;">100</strong> tanga</p>
+                        <p>Sizdagi DRV miqdori: <strong id="my-crypto">0</strong></p>
+                        <div class="crypto-actions">
+                            <button onclick="buyCrypto()">Sotib olish</button>
+                            <button onclick="sellCrypto()" style="background: #ef4444;">Sotish</button>
+                        </div>
+                    </div>
+                    <p><small>*Narx har 3 soniyada o'zgaradi. Arzonligida olib, qimmatida soting!</small></p>
+                </div>
+            </div>
+
+            <div id="leaderboard-tab" class="tab-content">
+                <h2>🏆 Peshqadamlar Ro'yxati</h2>
+                <p>Eng ko'p tanga yig'gan o'yinchilar top reytingi:</p>
+                <div class="leaderboard-box">
+                    <table id="leaderboard-table">
+                        <thead>
+                            <tr>
+                                <th>O'rin</th>
+                                <th>O'yinchi</th>
+                                <th>Tangalar 🪙</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboard-body">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
