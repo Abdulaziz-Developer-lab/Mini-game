@@ -10,21 +10,51 @@ const myUserId = localStorage.getItem('game_user_id');
 
 let currentScore = 0;
 
-// ISMNI TEKSHIRISH VA SERVERGA YUBORISH
+// MODAL BILDIRISHNOMA (ALERT O'RNIGA)
+function showCustomAlert(title, message) {
+    const alertModal = document.getElementById('alert-modal');
+    if (alertModal) {
+        document.getElementById('alert-title').textContent = title;
+        document.getElementById('alert-message').textContent = message;
+        alertModal.style.display = 'flex';
+    }
+}
+
+// ALERT MODALNI YOPISH
+const modalAlertBtn = document.getElementById('modal-alert-btn');
+if (modalAlertBtn) {
+    modalAlertBtn.onclick = () => {
+        const alertModal = document.getElementById('alert-modal');
+        if (alertModal) alertModal.style.display = 'none';
+    };
+}
+
+// TAXALLUSNI MODAL ORQALI SO'RASH
 async function checkPlayerName(state) {
     if (!localStorage.getItem('game_username') || localStorage.getItem('game_username') === 'Mehmon') {
-        let name = prompt("O'yin uchun o'zizga taxallus (nik) kiriting:");
-        if (!name || name.trim() === "") name = "Foydalanuvchi_" + Math.floor(Math.random() * 900 + 100);
-        
-        localStorage.setItem('game_username', name);
-        
-        try {
-            await fetch('/api/set-name', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId: myUserId, name: name })
-            });
-        } catch (e) { console.error(e); }
+        const nameModal = document.getElementById('name-modal');
+        if (nameModal) {
+            nameModal.style.display = 'flex'; 
+            
+            document.getElementById('modal-name-btn').onclick = async () => {
+                const input = document.getElementById('modal-name-input');
+                let name = input ? input.value.trim() : "";
+                
+                if (!name) name = "Foydalanuvchi_" + Math.floor(Math.random() * 900 + 100);
+                
+                localStorage.setItem('game_username', name);
+                nameModal.style.display = 'none'; 
+                
+                try {
+                    await fetch('/api/set-name', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ userId: myUserId, name: name })
+                    });
+                    loadLeaderboard();
+                } catch (e) { console.error(e); }
+            };
+        }
     }
 }
 
@@ -39,7 +69,7 @@ async function loadFromServer() {
         currentScore = data.score;
         updateUI(data);
         checkPlayerName(data);
-    } catch (error) { console.error("Xato:", error); }
+    } catch (error) { console.error("Serverdan yuklashda xato:", error); }
 }
 
 function updateUI(state) {
@@ -147,9 +177,10 @@ if (autoclickBtn) {
     };
 }
 
+// YANGI O'YIN OCHISH FUNKSIYASI
 window.unlockGame = async function(gameId, cost) {
     if (currentScore < cost) {
-        alert(`Sizga ${cost} ta tanga kerak! Hozir sizda: ${currentScore} ta bor.`);
+        showCustomAlert("⚠️ Mablag' yetarli emas", `Sizga ${cost} ta tanga kerak! Hozir sizda: ${currentScore} ta bor.`);
         return;
     }
     try {
@@ -161,13 +192,13 @@ window.unlockGame = async function(gameId, cost) {
         const data = await response.json();
         if (data.success) {
             updateUI(data.state);
-            alert("Tabriklaymiz! O'yin muvaffaqiyatli ochildi.");
+            showCustomAlert("🎉 Tabriklaymiz!", "Yangi mini-o'yin muvaffaqiyatli ochildi! Mazza qilib o'ynang.");
             if (gameId === 'react') resetReactGame();
         }
     } catch (e) { console.error(e); }
 };
 
-// 1. SONNI TOP
+// SONNI TOP MINI-O'YINI
 let randomNumber = Math.floor(Math.random() * 50) + 1;
 window.checkGuess = function() {
     const input = document.getElementById('guess-input');
@@ -187,7 +218,7 @@ window.checkGuess = function() {
     }
 };
 
-// 2. KIM CHAQQON
+// KIM CHAQQON MINI-O'YINI
 let reactTimer = null;
 let reactStartTime = 0;
 function resetReactGame() {
@@ -227,10 +258,10 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// 3. OMAD G'ILDIRAGI
+// OMAD G'ILDIRAGI MINI-O'YINI
 window.spinWheel = function() {
     if (currentScore < 20) {
-        alert("Aylantirish uchun 20 tanga kerak!");
+        showCustomAlert("⚠️ Diqqat", "Aylantirish uchun 20 tanga kerak!");
         return;
     }
     const wheel = document.getElementById('wheel');
@@ -260,7 +291,7 @@ window.spinWheel = function() {
     }, 2000);
 };
 
-// 4. KRIPTO BIRJA
+// KRIPTO BIRJA
 let cryptoPrice = 100;
 let myCryptoCount = 0;
 
@@ -279,7 +310,7 @@ window.buyCrypto = function() {
         myCryptoCount++;
         if (scoreDisplay) scoreDisplay.textContent = currentScore;
         document.getElementById('my-crypto').textContent = myCryptoCount;
-    } else { alert("Tangangiz yetarli emas!"); }
+    } else { showCustomAlert("⚠️ Xatolik", "Tangangiz yetarli emas!"); }
 };
 
 window.sellCrypto = function() {
@@ -288,10 +319,10 @@ window.sellCrypto = function() {
         currentScore += cryptoPrice;
         if (scoreDisplay) scoreDisplay.textContent = currentScore;
         document.getElementById('my-crypto').textContent = myCryptoCount;
-    } else { alert("Sizda DurovCoin yo'q!"); }
+    } else { showCustomAlert("⚠️ Xatolik", "Sizda DurovCoin yo'q!"); }
 };
 
-// GLOBAL REYTINGNI CHIQARISH
+// GLOBAL REYTING JADVALI
 async function loadLeaderboard() {
     try {
         const response = await fetch('/api/global-leaderboard');
