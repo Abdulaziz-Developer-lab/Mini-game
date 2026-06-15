@@ -10,7 +10,7 @@ const myUserId = localStorage.getItem('game_user_id');
 
 let currentScore = 0;
 
-// CHUNUK ALERT O'RNIGA NEON POPUP
+// NEON POPUP BILDIRISHNOMA
 function showCustomAlert(title, message) {
     const alertModal = document.getElementById('alert-modal');
     if (alertModal) {
@@ -20,7 +20,6 @@ function showCustomAlert(title, message) {
     }
 }
 
-// ALERT POPUPNI YOPISH
 const modalAlertBtn = document.getElementById('modal-alert-btn');
 if (modalAlertBtn) {
     modalAlertBtn.onclick = () => {
@@ -29,54 +28,48 @@ if (modalAlertBtn) {
     };
 }
 
-// TAXALLUSNI MODAL ORQALI SO'RASH (QATIY VA TEZKOR VARIANT)
-async function checkPlayerName(state) {
-    let currentLocalName = localStorage.getItem('game_username');
+// NIKNI TEKSHIRISH (UMUMAN QAYTA CHIQMAYDIGAN QULFLANGAN VARIANT)
+function checkPlayerName() {
     const nameModal = document.getElementById('name-modal');
+    let savedName = localStorage.getItem('game_username');
     
-    // Agar ism hali yo'q bo'lsa yoki "Mehmon" bo'lib qolgan bo'lsa, oynani ko'rsatamiz
-    if (!currentLocalName || currentLocalName === 'Mehmon' || currentLocalName.trim() === '') {
-        if (nameModal && nameModal.style.display !== 'flex') {
-            nameModal.style.display = 'flex'; 
+    // Agar brauzer xotirasida ism bo'lsa va u Mehmon bo'lmasa, oynani umuman ko'rsatmaymiz!
+    if (savedName && savedName !== 'Mehmon' && savedName.trim() !== '') {
+        if (nameModal) nameModal.style.display = 'none';
+        return; 
+    }
+    
+    // Agar ism topilmasa, oynani ochamiz
+    if (nameModal) {
+        nameModal.style.display = 'flex'; 
+        
+        document.getElementById('modal-name-btn').onclick = async () => {
+            const input = document.getElementById('modal-name-input');
+            let name = input ? input.value.trim() : "";
             
-            document.getElementById('modal-name-btn').onclick = async () => {
-                const input = document.getElementById('modal-name-input');
-                let name = input ? input.value.trim() : "";
-                
-                if (!name || name === 'Mehmon') {
-                    name = "O'yinchi_" + Math.floor(Math.random() * 900 + 100);
-                }
-                
-                // 1-QADAM: Srazu localda saqlaymiz va oynani yopamiz (aylanma sikl to'xtashi uchun)
-                localStorage.setItem('game_username', name);
-                nameModal.style.display = 'none'; 
-                
-                // 2-QADAM: Serverga tezkorlik bilan yuboramiz
-                try {
-                    await fetch('/api/set-name', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ userId: myUserId, name: name })
-                    });
-                    
-                    // Server javobidan keyin bazani qayta yuklaymiz
-                    const response = await fetch('/api/game-state', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ userId: myUserId })
-                    });
-                    const data = await response.json();
-                    updateUI(data);
-                    loadLeaderboard();
-                } catch (e) { 
-                    console.error("Ism yuborishda xato:", e); 
-                }
-            };
-        }
+            if (!name || name === 'Mehmon') {
+                name = "O'yinchi_" + Math.floor(Math.random() * 900 + 100);
+            }
+            
+            // BRAUZER XOTIRASIGA MIXLAB QO'YAMIZ
+            localStorage.setItem('game_username', name);
+            nameModal.style.display = 'none'; 
+            
+            // Serverga shunchaki xabar berib qo'yamiz (lekin javobini kutib o'tirmaymiz)
+            try {
+                fetch('/api/set-name', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: myUserId, name: name })
+                });
+            } catch (e) { console.error(e); }
+            
+            loadLeaderboard();
+        };
     }
 }
 
-// SERVERDAN MA'LUMOT YUKLASH VA REFRESHNI TO'G'RILASH
+// SERVERDAN MA'LUMOT YUKLASH
 async function loadFromServer() {
     try {
         const response = await fetch('/api/game-state', {
@@ -88,14 +81,9 @@ async function loadFromServer() {
         currentScore = data.score;
         updateUI(data);
         
-        // Agar serverda hali ham Mehmon bo'lsa, uni localda ushlab turmaymiz
-        if (data.username && data.username !== 'Mehmon') {
-            localStorage.setItem('game_username', data.username);
-        } else {
-            localStorage.removeItem('game_username'); // Modal qayta ochilishi uchun
-        }
+        // DIQQAT: Serverdan kelgan "Mehmon" ismini endi local xotiraga yozmaymiz!
+        // Local xotiradagi siz yozgan ism ustun turadi.
         
-        checkPlayerName(data);
     } catch (error) { console.error("Xato:", error); }
 }
 
@@ -384,6 +372,12 @@ window.switchTab = function(tabId) {
     if (tabId === 'react-tab') resetReactGame();
 };
 
+// TAYMERLAR VA YUKLASH
 setInterval(loadFromServer, 1000);
 setInterval(loadLeaderboard, 3000);
-window.onload = () => { loadFromServer(); loadLeaderboard(); };
+
+window.onload = async () => { 
+    await loadFromServer(); 
+    checkPlayerName(); // Ism tekshirish faqat bir marta, sayt yuklanganda ishlaydi!
+    loadLeaderboard(); 
+};
