@@ -10,21 +10,22 @@
 
     <div id="auth-screen" class="auth-container">
         <div class="auth-box">
-            <h2>Arcade Hub-ga Xush Kelibsiz!</h2>
-            <p>O'yinni boshlash va reytingga kirish uchun nikingizni kiriting:</p>
-            <input type="text" id="username-input" placeholder="Sizning nikingiz...">
+            <h2>Arcade Hub Tizimi 🎮</h2>
+            <p>O'yinni boshlash va reytingga yozilish uchun nikingizni kiriting:</p>
+            <input type="text" id="username-input" placeholder="Sizning nikingiz..." maxlength="15">
             <button onclick="loginPlayer()">O'yinga kirish 🚀</button>
         </div>
     </div>
 
     <div class="main-container hidden" id="main-game-screen">
+        
         <div class="sidebar">
             <h2>Arcade Hub</h2>
             <div class="user-info">O'yinchi: <strong id="display-username">...</strong></div>
             <div class="balance-box">
                 <p>Sizning balansingiz:</p>
                 <div id="score">0</div>
-                <p>tangalar</p>
+                <p>tangalar 🪙</p>
             </div>
             <nav>
                 <button class="nav-btn active" onclick="switchTab('clicker-tab')">👆 Clicker</button>
@@ -40,45 +41,47 @@
             
             <div id="clicker-tab" class="tab-content active">
                 <h2>Asosiy Clicker O'yini</h2>
-                <p>Tugmani bosing va tangalar ishlang!</p>
-                <button id="click-btn">Meni Bos!</button>
+                <p>Oltin tangani bosing va boylik orttiring!</p>
+                <button id="click-btn">🪙</button>
                 
                 <div class="upgrade-container">
                     <button id="upgrade-btn" disabled>Kuchaytirish (Narxi: 10)</button>
                     <button id="robot-btn" disabled>🤖 Avto Robot (Narxi: 50)</button>
                 </div>
-                <div style="margin-top: 15px; text-align: center; font-size: 14px; color: #94a3b8;">
-                    <p>Har bir bosish: +<span id="click-power">1</span> tanga | Avto daromad: +<span id="auto-power">0</span>/sek</p>
+                <div class="stats-footer">
+                    <p>Har bir bosish: +<span id="click-power">1</span> | Avto robot: +<span id="auto-power">0</span>/sek</p>
                 </div>
             </div>
 
             <div id="guess-tab" class="tab-content">
-                <h2>🎮 Sonni Top o'yini</h2>
+                <h2>🎮 Sonni Top O'yini</h2>
                 <div class="locked-content" id="guess-lock-screen">
                     <p>Bu o'yin qulflangan. Ochish uchun 100 ta tanga kerak.</p>
                     <button class="buy-btn" onclick="unlockGame('guess', 100)">Ochish (100 🪙)</button>
                 </div>
                 <div class="game-play hidden" id="guess-play-screen">
-                    <div class="game-box-design">
-                        <p>1 dan 20 gacha bo'lgan sonni o'yladim. Uni topa olasizmi?</p>
-                        <input type="number" id="guess-input" placeholder="Son yozing..." min="1" max="20">
-                        <button class="game-action-btn" onclick="playGuessGame()">Tekshirish</button>
-                        <p id="guess-result" style="margin-top: 15px; font-weight: bold;"></p>
+                    <div class="game-card">
+                        <p>1 dan 20 gacha tasodifiy son o'yladim. Topishga urinib ko'ring!</p>
+                        <div class="game-input-row">
+                            <input type="number" id="guess-input" placeholder="Son..." min="1" max="20">
+                            <button class="action-btn" onclick="playGuessGame()">Tekshirish</button>
+                        </div>
+                        <p id="guess-result" class="result-text"></p>
                     </div>
                 </div>
             </div>
 
             <div id="react-tab" class="tab-content">
-                <h2>🎮 Kim Chaqqon? o'yini</h2>
+                <h2>🎮 Kim Chaqqon?</h2>
                 <div class="locked-content" id="react-lock-screen">
                     <p>Bu o'yin qulflangan. Ochish uchun 300 ta tanga kerak.</p>
                     <button class="buy-btn" onclick="unlockGame('react', 300)">Ochish (300 🪙)</button>
                 </div>
                 <div class="game-play hidden" id="react-play-screen">
-                    <div class="game-box-design">
-                        <p>Kvadrat rangi 🟢 YASHIL bo'lishi bilan uni tezda bosing!</p>
+                    <div class="game-card">
+                        <p>Kvadrat yashil rangga kirishi bilan uni tezda bosing!</p>
                         <div id="react-box" onclick="clickReactBox()">Boshlash uchun bosing</div>
-                        <p id="react-result" style="margin-top: 15px; font-weight: bold;"></p>
+                        <p id="react-result" class="result-text"></p>
                     </div>
                 </div>
             </div>
@@ -90,39 +93,41 @@
                     <button class="buy-btn" onclick="unlockGame('wheel', 500)">Ochish (500 🪙)</button>
                 </div>
                 <div class="game-play hidden" id="wheel-play-screen">
-                    <div class="game-box-design">
-                        <p>G'ildirakni aylantiring va tasodifiy mukofot yuting! (Har bir aylantirish: 20 tanga)</p>
-                        <div class="wheel-container">
-                            <div id="wheel">🎡</div>
+                    <div class="game-card">
+                        <p>Omad g'ildiragini aylantiring (Narxi: 30 tanga)</p>
+                        <div class="wheel-box">
+                            <div id="wheel-element">🎡</div>
                         </div>
-                        <button id="spin-btn" class="game-action-btn" onclick="spinWheel()">Aylantirish (20 🪙)</button>
-                        <p id="wheel-result" style="margin-top: 15px; font-weight: bold;"></p>
+                        <button id="spin-btn" class="action-btn" onclick="spinWheel()">Aylantirish (30 🪙)</button>
+                        <p id="wheel-result" class="result-text"></p>
                     </div>
                 </div>
             </div>
 
             <div id="crypto-tab" class="tab-content">
-                <h2>📈 Kripto Birja Simulyatori</h2>
+                <h2>📈 Kripto Birja</h2>
                 <div class="locked-content" id="crypto-lock-screen">
                     <p>Bu bo'lim qulflangan. Ochish uchun 1000 ta tanga kerak.</p>
                     <button class="buy-btn" onclick="unlockGame('crypto', 1000)">Ochish (1000 🪙)</button>
                 </div>
                 <div class="game-play hidden" id="crypto-play-screen">
-                    <div class="game-box-design">
+                    <div class="game-card">
                         <h3>DrovCoin (DRV)</h3>
-                        <p>Joriy narx: <strong id="crypto-price" style="color: #eab308;">100</strong> tanga</p>
-                        <p>Sizdagi DRV miqdori: <strong id="my-crypto">0</strong></p>
-                        <div class="crypto-actions" style="margin-top: 15px; display: flex; gap: 10px; justify-content: center;">
-                            <button class="buy-btn" style="margin:0; background: #22c55e;" onclick="buyCrypto()">Sotib olish</button>
-                            <button class="buy-btn" style="margin:0; background: #ef4444;" onclick="sellCrypto()">Sotish</button>
+                        <div class="crypto-dashboard">
+                            <p>Narxi: <strong id="crypto-price" style="color: #eab308; font-size: 24px;">100</strong> 🪙</p>
+                            <p>Sizdagi miqdor: <strong id="my-crypto" style="color: #38bdf8; font-size: 24px;">0</strong> DRV</p>
                         </div>
-                        <p style="margin-top: 15px; font-size: 12px; color: #94a3b8;">*Narx har 3 soniyada o'zgaradi. Arzonida olib, qimmatida soting!</p>
+                        <div class="crypto-buttons">
+                            <button class="trade-btn buy" onclick="tradeCrypto('buy')">Sotib olish</button>
+                            <button class="trade-btn sell" onclick="tradeCrypto('sell')">Sotish</button>
+                        </div>
+                        <p class="hint-text">*Narx har 3 soniyada o'zgaradi. Kursni kuzating!</p>
                     </div>
                 </div>
             </div>
 
             <div id="leaderboard-tab" class="tab-content">
-                <h2>🏆 Haqiqiy O'yinchilar Reytingi</h2>
+                <h2>🏆 Peshqadamlar Ro'yxati</h2>
                 <div class="leaderboard-box">
                     <table>
                         <thead>
