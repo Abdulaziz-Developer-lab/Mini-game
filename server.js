@@ -14,13 +14,16 @@ app.post('/api/get-player', (req, res) => {
 
     if (!playersDatabase[username]) {
         playersDatabase[username] = {
-            score: 0,
-            clickPower: 1,
-            upgradeCost: 10,
-            autoPower: 0,
-            autoclickCost: 50,
-            gamesUnlocked: { guess: false, react: false, wheel: false, crypto: false },
-            myCryptoCount: 0
+         // Eski narxlar o'rniga yangi, qimmatroq narxlar
+playersDatabase[username] = {
+    score: 0,
+    clickPower: 1,
+    upgradeCost: 50,           // 10 -> 50
+    autoPower: 0,
+    autoclickCost: 250,        // 50 -> 250
+    gamesUnlocked: { guess: false, react: false, wheel: false, crypto: false },
+    myCryptoCount: 0
+};
         };
     }
     res.json(playersDatabase[username]);
