@@ -2,32 +2,32 @@ const scoreDisplay = document.getElementById('score');
 const upgradeBtn = document.getElementById('upgrade-btn');
 const clickBtn = document.getElementById('click-btn');
 
-// Ichki yashirin va xavfsiz o'zgaruvchi
 let _secureScore = 0;
 
-// Telegram Web App muhitini tayyorlash
+// Telegram Web App'ni to'g'ri kengaytirish
 if (window.Telegram && window.Telegram.WebApp) {
     window.Telegram.WebApp.ready();
-    window.Telegram.WebApp.expand(); 
+    window.Telegram.WebApp.expand();
 }
 
-// O'sha "aqlli" uchun maxsus TUZOQ (Anti-Cheat) 🕵️‍♂️
+// 🕵️‍♂️ MAQTANCHOQ XAKER UCHUN MAXSUS ANTI-CHEAT (TUZOQ)
 // Agar u konsoldan 'currentScore = 10000' deb yozsa, srazu ushlanadi!
 Object.defineProperty(window, 'currentScore', {
     get: function() { return _secureScore; },
     set: function(val) {
-        _secureScore = 0; 
+        _secureScore = 0;
         alert("Aldash yo'q! 🛑 Tangalaringiz kuydi! 😂");
         if (scoreDisplay) scoreDisplay.textContent = 0;
     }
 });
 
+// Serverdan o'yin holatini yuklash
 async function loadFromServer() {
     try {
-        const response = await fetch('/game-state');
+        const response = await fetch('/api/game-state');
         if (!response.ok) throw new Error('Server xatosi');
         const data = await response.json();
-        _secureScore = data.score; 
+        _secureScore = data.score;
         updateUI(data);
     } catch (error) {
         console.error("Xato:", error);
@@ -37,43 +37,99 @@ async function loadFromServer() {
 function updateUI(state) {
     if (scoreDisplay) scoreDisplay.textContent = state.score;
     if (document.getElementById('click-power')) document.getElementById('click-power').textContent = state.clickPower;
+    
     if (upgradeBtn) {
         upgradeBtn.textContent = `Kuchaytirish (${state.upgradeCost})`;
         upgradeBtn.disabled = state.score < state.upgradeCost;
     }
+
+    // Qulflangan bo'limlarni tekshirish
+    toggleGameScreens('guess', state.gamesUnlocked.guess);
+    toggleGameScreens('react', state.gamesUnlocked.react);
+    toggleGameScreens('wheel', state.gamesUnlocked.wheel);
+    toggleGameScreens('crypto', state.gamesUnlocked.crypto);
 }
 
+function toggleGameScreens(gameId, isUnlocked) {
+    const lockScreen = document.getElementById(`${gameId}-lock-screen`);
+    const playScreen = document.getElementById(`${gameId}-play-screen`);
+    const navBtn = document.getElementById(`nav-${gameId}`);
+
+    if (isUnlocked) {
+        if (lockScreen) lockScreen.classList.add('hidden');
+        if (playScreen) playScreen.classList.remove('hidden');
+        if (navBtn) navBtn.innerHTML = navBtn.innerHTML.replace('🔒', '🎮');
+    } else {
+        if (lockScreen) lockScreen.classList.remove('hidden');
+        if (playScreen) playScreen.classList.add('hidden');
+    }
+}
+
+// Click qilish hodisasi
 if (clickBtn) {
     clickBtn.addEventListener('click', async () => {
         try {
-            const response = await fetch('/click', { method: 'POST' });
+            const response = await fetch('/api/click', { method: 'POST' });
             const data = await response.json();
             if (data.success) {
-                if (scoreDisplay) scoreDisplay.textContent = data.score;
                 _secureScore = data.score;
-                loadFromServer(); 
+                if (scoreDisplay) scoreDisplay.textContent = data.score;
             }
         } catch (e) { console.error(e); }
     });
 }
 
+// Upgrade sotib olish hodisasi
 if (upgradeBtn) {
     upgradeBtn.addEventListener('click', async () => {
         try {
-            const response = await fetch('/upgrade', { method: 'POST' });
+            const response = await fetch('/api/upgrade', { method: 'POST' });
             const data = await response.json();
             if (data.success) {
-                updateUI(data.state);
                 _secureScore = data.state.score;
+                updateUI(data.state);
             }
         } catch (e) { console.error(e); }
     });
 }
 
+// Serverda o'yin qulfini ochish (Tanga yechiladi)
+async function unlockGame(gameId, cost) {
+    if (_secureScore < cost) {
+        alert(`Sizga ${cost} ta tanga kerak! Balansingiz yetarli emas. 🪙`);
+        return;
+    }
+    try {
+        const response = await fetch('/api/unlock-game', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ gameId, cost })
+        });
+        const data = await response.json();
+        if (data.success) {
+            _secureScore = data.state.score;
+            updateUI(data.state);
+            alert("O'yin muvaffaqiyatli ochildi! 🎉");
+        }
+    } catch (e) { console.error(e); }
+}
+
+// Bo'limlarni almashtirish (Tab switch)
+function switchTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+    
+    const activeTab = document.getElementById(tabId);
+    if (activeTab) activeTab.classList.add('active');
+    
+    const activeBtn = document.querySelector(`[onclick="switchTab('${tabId}')"]`);
+    if (activeBtn) activeBtn.classList.add('active');
+}
+
+// Leaderboardni yuklash
 async function loadLeaderboard() {
     try {
-        const response = await fetch('/leaderboard');
-        if (!response.ok) throw new Error('Leaderboard topilmadi');
+        const response = await fetch('/api/leaderboard');
         const players = await response.json();
         const tbody = document.getElementById('leaderboard-body');
         if (tbody) {
@@ -87,47 +143,7 @@ async function loadLeaderboard() {
     } catch (e) { console.error(e); }
 }
 
-setInterval(loadFromServer, 2000); 
-setInterval(loadLeaderboard, 5000);
+// Taymerlar (Har soniyada holatni yangilab turish)
+setInterval(loadFromServer, 1500);
+setInterval(loadLeaderboard, 4000);
 window.onload = () => { loadFromServer(); loadLeaderboard(); };
-
-function switchTab(tabId) {
-    // Agar o'yin ochilmagan bo'lsa, tabni o'zgartirishni taqiqlaymiz
-    if (tabId !== 'clicker-tab' && tabId !== 'leaderboard-tab') {
-        const shortName = tabId.replace('-tab', '');
-        const lockScreen = document.getElementById(`${shortName}-lock-screen`);
-        if (lockScreen && !lockScreen.classList.contains('hidden')) {
-            alert("Bu o'yin hali qulflangan! Avval tanga evaziga oching. 🔒");
-            return;
-        }
-    }
-
-    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-    
-    const activeTab = document.getElementById(tabId);
-    if (activeTab) activeTab.classList.add('active');
-    
-    const activeBtn = document.querySelector(`[onclick="switchTab('${tabId}')"]`);
-    if (activeBtn) activeBtn.classList.add('active');
-}
-
-function unlockGame(gameId, cost) {
-    if (_secureScore < cost) {
-        alert(`Sizga kamida ${cost} ta tanga kerak! Balansingiz yetarli emas. 🪙`);
-        return;
-    }
-
-    _secureScore -= cost; 
-    if (scoreDisplay) scoreDisplay.textContent = _secureScore;
-
-    document.getElementById(`${gameId}-lock-screen`).classList.add('hidden');
-    document.getElementById(`${gameId}-play-screen`).classList.remove('hidden');
-
-    const navBtn = document.getElementById(`nav-${gameId}`);
-    if (navBtn) {
-        navBtn.innerHTML = navBtn.innerHTML.replace('🔒', '🎮');
-    }
-
-    switchTab(`${gameId}-tab`);
-}
