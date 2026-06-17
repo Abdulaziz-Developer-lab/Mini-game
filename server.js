@@ -13,7 +13,8 @@ app.use(helmet({ contentSecurityPolicy: false }));
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 daqiqa
-  max: 100 // har bir IP dan 100 ta so'rov
+  max: 5000, // Limitni 100 tadan 5000 taga ko'paytirdik!
+  message: "Juda ko'p so'rov yuborildi, iltimos biroz kuting."
 });
 app.use(limiter);
 
