@@ -1,46 +1,24 @@
 const express = require('express');
-const path = require('path');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const path = require('path');
 
 const app = express();
 
-// --- HIMOYA KODLARI ---
+// --- HIMOYANI QO'SHISH ---
 app.use(helmet());
 
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 daqiqa
-    max: 100, // Har bir IP uchun maksimal 100 ta so'rov
-    message: "Juda ko'p so'rov yubordingiz, biroz kuting."
+  windowMs: 15 * 60 * 1000, // 15 daqiqa
+  max: 100 // har bir IP dan 100 ta so'rov
 });
-app.use('/api/', limiter);
-// ----------------------
+app.use(limiter);
 
-const PORT = process.env.PORT || 3000;
-
+// JSON va URL-encoded ma'lumotlarni qabul qilish (bular juda muhim!)
 app.use(express.json());
-app.use(express.static(__dirname));
+app.use(express.urlencoded({ extended: true }));
 
-let playersDatabase = {};
-
-// O'yinchini olish yoki yaratish
-app.post('/api/get-player', (req, res) => {
-    const { username } = req.body;
-    if (!username) return res.status(400).json({ error: "Nik kiritilmadi!" });
-
-    if (!playersDatabase[username]) {
-        playersDatabase[username] = {
-            score: 0,
-            clickPower: 1,
-            upgradeCost: 50,
-            autoPower: 0,
-            autoclickCost: 250,
-            gamesUnlocked: { guess: false, react: false, wheel: false, crypto: false },
-            myCryptoCount: 0
-        };
-    }
-    res.json(playersDatabase[username]);
-});
+// --- SIZNING FUNKSIYALARINGIZ ---
 
 // Tanga bosish
 app.post('/api/click', (req, res) => {
@@ -55,10 +33,13 @@ app.post('/api/click', (req, res) => {
 app.post('/api/upgrade', (req, res) => {
     const { username } = req.body;
     if (!username || !playersDatabase[username]) return res.status(400).json({ error: "O'yinchi topilmadi!" });
-    // ... qolgan kodlaringiz
+    
+    // Qolgan kodingiz shu yerda bo'ladi...
     res.json({ success: true });
 });
 
-app.listen(PORT, () => {
+// --- SERVERNI ISHGA TUSHIRISH (RENDER UCHUN) ---
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server ${PORT}-portda ishlamoqda`);
 });
