@@ -5,7 +5,7 @@ body {
 }
 .main-container {
     display: flex; width: 950px; height: 580px;
-    background: #1e222b; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow: hidden;
+    background: #1e293b; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow: hidden;
 }
 .sidebar {
     width: 30%; background: #0f172a; padding: 20px; display: flex; flex-direction: column; border-right: 1px solid #334155;
@@ -58,10 +58,15 @@ nav { display: flex; flex-direction: column; gap: 8px; }
 }
 /* Leaderboard Jadval Dizayni */
 .leaderboard-box {
-    background: #0f172a; padding: 20px; border-radius: 15px; border: 1px solid #334155; margin-top: 20px; max-height: 300px; overflow-y: auto;
+    background: #0f172a;
+    padding: 20px;
+    border-radius: 15px;
+    border: 1px solid #334155;
+    margin-top: 20px;
+    max-height: 300px;
+    overflow-y: auto;
 }
 table { width: 100%; border-collapse: collapse; }
 th, td { padding: 10px; text-align: left; border-bottom: 1px solid #334155; }
 th { color: #38bdf8; }
 .current-user-row { background: rgba(56, 189, 248, 0.1); font-weight: bold; color: #38bdf8; }
-input { padding: 8px; border-radius: 5px; border: 1px solid #334155; background: #0f172a; color: white; }
