@@ -2,7 +2,7 @@ body {
     margin: 0; font-family: 'Segoe UI', sans-serif;
     background: #0f172a; color: #f8fafc;
     display: flex; justify-content: center; align-items: center; min-height: 100vh;
-    overflow-y: auto; /* Butun ekran mishka g'ildiragida aylanishi uchun */
+    overflow-y: auto; /* Brauzerning o'zida scroll ishlashi uchun */
 }
 *, *::before, *::after { box-sizing: border-box; }
 
@@ -26,11 +26,11 @@ body {
 }
 .auth-box button:hover { background: #0ea5e9; }
 
-/* Asosiy konteyner - endi balandligi moslashuvchan (flexible) va mishka g'ildiragiga itoat qiladi */
+/* Asosiy konteyner kengaytirildi va scroll moslashuvchan qilindi */
 .main-container {
-    display: flex; width: 950px; min-height: 590px; height: auto;
+    display: flex; width: 1000px; min-height: 620px; height: auto;
     background: #1e293b; border-radius: 24px; box-shadow: 0 15px 40px rgba(0,0,0,0.6); 
-    margin: 30px auto; overflow: hidden;
+    margin: 40px auto; overflow: hidden;
 }
 .sidebar {
     width: 32%; background: #0f172a; padding: 25px; display: flex; flex-direction: column; border-right: 1px solid #334155;
@@ -49,24 +49,33 @@ nav { display: flex; flex-direction: column; gap: 10px; }
 }
 .nav-btn.active, .nav-btn:hover { background: #38bdf8; color: #0f172a; font-weight: bold; transform: translateX(3px); }
 
-/* O'yin maydoni - mishka g'ildiragi endi bu yerda mukammal ishlaydi */
+/* Mishka g'ildiragi (scroll) muammosini yo'qotuvchi toza o'yin maydoni */
 .game-area { 
     width: 68%; padding: 35px; 
     height: auto;
-    overflow-y: visible; /* Ichki tiqilish olib tashlandi */
+    overflow-y: visible; /* Qisilib qolish butunlay olib tashlandi */
 }
 
 .tab-content { display: none; }
 .tab-content.active { display: block; }
 
-/* Clicker elementi */
-#click-btn {
-    width: 150px; height: 150px; border-radius: 50%; border: none;
-    background: radial-gradient(circle, #facc15 0%, #ca8a04 100%);
-    font-size: 70px; cursor: pointer; display: flex; justify-content: center; align-items: center;
-    box-shadow: 0 10px 25px rgba(250, 204, 21, 0.3); transition: transform 0.05s; margin: 25px auto; outline: none;
+/* 🪙 CSS Oltin Tanga - Endi kvadrat yoki xunuk quti bo'lib qolmaydi */
+.coin-container {
+    display: flex; justify-content: center; margin: 30px 0;
 }
-#click-btn:active { transform: scale(0.93); }
+.gold-coin {
+    width: 140px; height: 140px; border-radius: 50%;
+    background: radial-gradient(circle, #ffe066 0%, #f59f00 70%, #d9480f 100%);
+    border: 5px solid #fff3bf;
+    box-shadow: 0 10px 25px rgba(245, 159, 0, 0.4), inset 0 0 15px rgba(0,0,0,0.2);
+    cursor: pointer; display: flex; justify-content: center; align-items: center;
+    font-size: 55px; color: transparent; text-shadow: 0 0 0 white; /* Emojini toza markazlashtirish */
+    transition: transform 0.05s, box-shadow 0.1s; user-select: none;
+}
+.gold-coin:active {
+    transform: scale(0.92);
+    box-shadow: 0 5px 15px rgba(245, 159, 0, 0.6);
+}
 
 .upgrade-container { display: flex; justify-content: center; gap: 15px; margin-top: 25px; }
 #upgrade-btn { background: #22c55e; color: white; padding: 12px 18px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 14px; }
@@ -74,7 +83,7 @@ nav { display: flex; flex-direction: column; gap: 10px; }
 #upgrade-btn:disabled, #robot-btn:disabled { background: #475569; cursor: not-allowed; opacity: 0.5; }
 .stats-footer { margin-top: 15px; text-align: center; font-size: 13px; color: #64748b; }
 
-/* O'yin Kartalari */
+/* 🎮 Mini O'yinlar Chiroyli Kartalari */
 .locked-content { background: #0f172a; padding: 35px; border-radius: 18px; border: 1px solid #334155; text-align: center; margin-top: 10px; }
 .buy-btn { background: #facc15; color: #0f172a; padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 15px; font-size: 15px; }
 .game-card { background: #0f172a; padding: 25px; border-radius: 18px; border: 1px solid #334155; text-align: center; margin-top: 10px; }
@@ -83,13 +92,13 @@ nav { display: flex; flex-direction: column; gap: 10px; }
 .action-btn { background: #38bdf8; color: #0f172a; padding: 10px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
 .result-text { font-weight: bold; font-size: 15px; height: 20px; }
 
-/* React oynasi */
+/* React Game Box */
 #react-box {
     width: 220px; height: 120px; background: #ef4444; margin: 25px auto; border-radius: 16px;
     display: flex; justify-content: center; align-items: center; font-size: 16px; font-weight: bold; cursor: pointer; user-select: none; transition: background 0.1s; border: 2px solid rgba(255,255,255,0.1);
 }
 
-/* Omad G'ildiragi */
+/* Wheel Game */
 .wheel-box { margin: 20px auto; width: 130px; height: 130px; display: flex; justify-content: center; align-items: center; }
 #wheel-element { font-size: 85px; transition: transform 2s cubic-bezier(0.15, 0.85, 0.35, 1); user-select: none; }
 
