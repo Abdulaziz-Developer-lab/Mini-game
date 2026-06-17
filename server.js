@@ -8,14 +8,12 @@ app.use(express.static(__dirname));
 
 let playersDatabase = {};
 
+// O'yinchini olish yoki yaratish
 app.post('/api/get-player', (req, res) => {
     const { username } = req.body;
     if (!username) return res.status(400).json({ error: "Nik kiritilmadi!" });
 
     if (!playersDatabase[username]) {
-        playersDatabase[username] = {
-         // Eski narxlar o'rniga yangi, qimmatroq narxlar
-if (!playersDatabase[username]) {
         playersDatabase[username] = {
             score: 0,
             clickPower: 1,
@@ -27,9 +25,9 @@ if (!playersDatabase[username]) {
         };
     }
     res.json(playersDatabase[username]);
-    res.json(playersDatabase[username]);
 });
 
+// Tanga bosish
 app.post('/api/click', (req, res) => {
     const { username } = req.body;
     if (!username || !playersDatabase[username]) return res.status(400).json({ error: "O'yinchi topilmadi!" });
@@ -38,6 +36,7 @@ app.post('/api/click', (req, res) => {
     res.json({ success: true, score: playersDatabase[username].score });
 });
 
+// Kuchaytirish (Upgrade)
 app.post('/api/upgrade', (req, res) => {
     const { username } = req.body;
     if (!username || !playersDatabase[username]) return res.status(400).json({ error: "O'yinchi topilmadi!" });
@@ -53,6 +52,7 @@ app.post('/api/upgrade', (req, res) => {
     }
 });
 
+// Robot sotib olish
 app.post('/api/buy-robot', (req, res) => {
     const { username } = req.body;
     if (!username || !playersDatabase[username]) return res.status(400).json({ error: "O'yinchi topilmadi!" });
@@ -68,6 +68,7 @@ app.post('/api/buy-robot', (req, res) => {
     }
 });
 
+// Avto-tanga yig'ish
 app.post('/api/auto-collect', (req, res) => {
     const { username } = req.body;
     if (!username || !playersDatabase[username]) return res.status(400).json({ error: "O'yinchi topilmadi!" });
@@ -77,6 +78,7 @@ app.post('/api/auto-collect', (req, res) => {
     res.json({ success: true, score: player.score });
 });
 
+// O'yinni ochish
 app.post('/api/unlock-game', (req, res) => {
     const { username, gameId, cost } = req.body;
     if (!username || !playersDatabase[username]) return res.status(400).json({ error: "O'yinchi topilmadi!" });
@@ -91,6 +93,7 @@ app.post('/api/unlock-game', (req, res) => {
     }
 });
 
+// Mukofot berish
 app.post('/api/reward-player', (req, res) => {
     const { username, amount } = req.body;
     if (!username || !playersDatabase[username]) return res.status(400).json({ error: "O'yinchi topilmadi!" });
@@ -100,6 +103,7 @@ app.post('/api/reward-player', (req, res) => {
     res.json({ success: true, score: playersDatabase[username].score });
 });
 
+// Kripto savdosi
 app.post('/api/crypto-trade', (req, res) => {
     const { username, action, price } = req.body;
     let player = playersDatabase[username];
@@ -117,6 +121,7 @@ app.post('/api/crypto-trade', (req, res) => {
     res.status(400).json({ success: false, message: "Mablag' yoki mahsulot yetarli emas!" });
 });
 
+// Reyting
 app.get('/api/leaderboard', (req, res) => {
     let sorted = Object.keys(playersDatabase).map(user => {
         return { name: user, score: playersDatabase[user].score };
