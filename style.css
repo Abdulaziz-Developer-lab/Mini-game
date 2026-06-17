@@ -13,7 +13,7 @@ body {
 
 .main-container {
     width: 100%;
-    max-width: 480px; /* Telefon ekranlari o'lchami */
+    max-width: 480px; /* Telefon ekrani o'lchami */
     height: 100vh;
     display: flex;
     flex-direction: column;
@@ -29,7 +29,7 @@ body {
 }
 
 .balance-box {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: bold;
 }
 
@@ -37,12 +37,12 @@ body {
     flex: 1;
     overflow-y: auto;
     padding: 20px;
-    padding-bottom: 90px; /* Pastki menyu to'sib qo'ymasligi uchun */
+    padding-bottom: 90px;
 }
 
-/* Faqat aktiv bo'lim ko'rinishi uchun muhim joyi */
+/* Faqat bitta bo'lim ko'rinishi uchun juda muhim */
 .tab-content {
-    display: none; 
+    display: none;
     text-align: center;
 }
 
@@ -51,55 +51,50 @@ body {
 }
 
 #click-btn {
-    width: 160px;
-    height: 160px;
+    width: 170px;
+    height: 170px;
     border-radius: 50%;
     border: none;
     background: radial-gradient(circle, #eab308 0%, #ca8a04 100%);
     color: white;
-    font-size: 20px;
+    font-size: 22px;
     font-weight: bold;
     cursor: pointer;
-    box-shadow: 0 8px 20px rgba(234, 179, 8, 0.4);
+    box-shadow: 0 8px 25px rgba(234, 179, 8, 0.4);
     transition: transform 0.1s;
-    margin: 30px auto;
+    margin: 40px auto;
     display: block;
 }
 
 #click-btn:active {
-    transform: scale(0.95);
+    transform: scale(0.93);
 }
 
-.shop {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-button {
-    padding: 12px;
-    border-radius: 8px;
+.shop button, .buy-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
     border: none;
     background-color: #3b82f6;
     color: white;
     font-weight: bold;
+    font-size: 16px;
     cursor: pointer;
+    margin-top: 10px;
 }
 
 button:disabled {
     background-color: #4b5563;
     cursor: not-allowed;
-    opacity: 0.6;
+    opacity: 0.5;
 }
 
-/* Pastki menyu dizayni */
 .bottom-nav {
     position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 70px;
+    height: 75px;
     background-color: #1e222b;
     display: flex;
     justify-content: space-around;
@@ -116,11 +111,10 @@ button:disabled {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     cursor: pointer;
-    padding: 5px;
     flex: 1;
     height: 100%;
-    justify-content: center;
 }
 
 .nav-btn.active {
@@ -131,9 +125,9 @@ button:disabled {
 
 .locked-content {
     background-color: #1e222b;
-    padding: 30px;
-    border-radius: 12px;
-    margin-top: 20px;
+    padding: 40px 20px;
+    border-radius: 14px;
+    margin-top: 25px;
 }
 
 .hidden {
@@ -141,14 +135,14 @@ button:disabled {
 }
 
 input {
-    padding: 10px;
-    border-radius: 6px;
+    padding: 12px;
+    border-radius: 8px;
     border: 1px solid #4b5563;
     background-color: #1f2937;
     color: white;
-    margin-bottom: 10px;
     width: 80%;
     text-align: center;
+    font-size: 16px;
 }
 
 table {
@@ -158,7 +152,7 @@ table {
 }
 
 th, td {
-    padding: 10px;
+    padding: 12px;
     border-bottom: 1px solid #2d323f;
     text-align: left;
 }
