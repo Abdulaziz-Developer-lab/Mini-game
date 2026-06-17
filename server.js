@@ -1,52 +1,80 @@
 const express = require('express');
 const path = require('path');
-const app = express();
+const app = Math.create ? null : express(); // Expressni oddiy chaqirish
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname)));
+app.use(express.static(__dirname));
 
-let serverState = {
-    score: 0,
-    clickPower: 1,
-    upgradeCost: 10,
-    autoPower: 0,
-    autoclickCost: 50,
-    gamesUnlocked: { guess: false, react: false, wheel: false, crypto: false },
-    myCryptoCount: 0
-};
+// Haqiqiy o'yinchilar bazasi
+let playersDatabase = {};
 
-let leaderboardData = [
-    { name: "Alisher_Pro", score: 2500 },
-    { name: "Jasur_Clicker", score: 1850 },
-    { name: "Sardor_Dev", score: 1200 },
-    { name: "Siz (Sinfdoshingiz)", score: 0 }
-];
+// O'yinchi holatini olish yoki yangi ochish
+app.post('/api/get-player', (req, res) => {
+    const { username } = req.body;
+    if (!username) return res.status(400).json({ error: "Nik kiritilmadi!" });
 
-app.get('/api/game-state', (req, res) => {
-    res.json(serverState);
+    if (!playersDatabase[username]) {
+        playersDatabase[username] = {
+            score: 0,
+            clickPower: 1,
+            upgradeCost: 10,
+            gamesUnlocked: { guess: false, react: false, wheel: false, crypto: false }
+        };
+    }
+    res.json(playersDatabase[username]);
 });
 
+// Click qilish API
 app.post('/api/click', (req, res) => {
-    serverState.score += serverState.clickPower;
-    res.json({ success: true, score: serverState.score });
+    const { username } = req.body;
+    if (!username || !playersDatabase[username]) return res.status(400).json({ error: "Xato o'yinchi!" });
+
+    playersDatabase[username].score += playersDatabase[username].clickPower;
+    res.json({ success: true, score: playersDatabase[username].score });
 });
 
+// Kuchaytirish (Upgrade) API
 app.post('/api/upgrade', (req, res) => {
-    if (serverState.score >= serverState.upgradeCost) {
-        serverState.score -= serverState.upgradeCost;
-        serverState.clickPower += 1;
-        serverState.upgradeCost = Math.round(serverState.upgradeCost * 1.5);
-        res.json({ success: true, state: serverState });
+    const { username } = req.body;
+    if (!username || !playersDatabase[username]) return res.status(400).json({ error: "Xato o'yinchi!" });
+
+    let player = playersDatabase[username];
+    if (player.score >= player.upgradeCost) {
+        player.score -= player.upgradeCost;
+        player.clickPower += 1;
+        player.upgradeCost = Math.round(player.upgradeCost * 1.5);
+        res.json({ success: true, state: player });
     } else {
         res.status(400).json({ success: false, message: "Mablag' yetarli emas!" });
     }
 });
 
+// 🔓 MINI O'YINLARNI SOTIB OLISH API (MANA SHU JOYI ISHLAMAYOTGAN EDI)
+app.post('/api/unlock-game', (req, res) => {
+    const { username, gameId, cost } = req.body;
+    if (!username || !playersDatabase[username]) return res.status(400).json({ error: "Xato o'yinchi!" });
+
+    let player = playersDatabase[username];
+    if (player.score >= cost) {
+        player.score -= cost;
+        player.gamesUnlocked[gameId] = true; // O'yinni ochish
+        res.json({ success: true, state: player });
+    } else {
+        res.status(400).json({ success: false, message: "Tangalaringiz yetarli emas!" });
+    }
+});
+
+// Haqiqiy Leaderboard
 app.get('/api/leaderboard', (req, res) => {
-    leaderboardData[3].score = serverState.score;
-    let sortedData = [...leaderboardData].sort((a, b) => b.score - a.score);
-    res.json(sortedData);
+    let sortedLeaderboard = Object.keys(playersDatabase).map(username => {
+        return { name: username, score: playersDatabase[username].score };
+    }).sort((a, b) => b.score - a.score);
+    res.json(sortedLeaderboard);
+});
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.listen(PORT, () => {
