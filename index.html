@@ -8,9 +8,19 @@
 </head>
 <body>
 
-    <div class="main-container">
+    <div id="auth-screen" class="auth-container">
+        <div class="auth-box">
+            <h2>Arcade Hub-ga Xush Kelibsiz!</h2>
+            <p>O'yinni boshlash va reytingga kirish uchun nikingizni kiriting:</p>
+            <input type="text" id="username-input" placeholder="Sizning nikingiz...">
+            <button onclick="loginPlayer()">O'yinga kirish 🚀</button>
+        </div>
+    </div>
+
+    <div class="main-container hidden" id="main-game-screen">
         <div class="sidebar">
             <h2>Arcade Hub</h2>
+            <div class="user-info">O'yinchi: <strong id="display-username">...</strong></div>
             <div class="balance-box">
                 <p>Sizning balansingiz:</p>
                 <div id="score">0</div>
@@ -30,70 +40,66 @@
             
             <div id="clicker-tab" class="tab-content active">
                 <h2>Asosiy Clicker O'yini</h2>
-                <p>Tugmani bosing va tangalar ishlang! Ishlagan tangalaringiz evaziga bosingiz kuchini oshiring.</p>
+                <p>Tugmani bosing va tangalar ishlang!</p>
                 <button id="click-btn">Meni Bos!</button>
                 <div style="margin-top: 20px; text-align: center;">
                     <button id="upgrade-btn" disabled>Kuchaytirish (Narxi: 10)</button>
-                    <p><small>Har bir bosish: +<span id="click-power">1</span> tanga beradi</small></p>
+                    <p><small>Har bir bosish: +<span id="click-power">1</span> tanga</small></p>
                 </div>
             </div>
 
             <div id="guess-tab" class="tab-content">
                 <h2>🎮 Sonni Top o'yini</h2>
                 <div class="locked-content" id="guess-lock-screen">
-                    <p>Bu o'yin hozircha qulflangan. Uni ochish uchun 100 ta tanga kerak.</p>
-                    <button class="buy-btn" onclick="unlockGame('guess')">Ochish (100 🪙)</button>
+                    <p>Bu o'yin qulflangan. Ochish uchun 100 ta tanga kerak.</p>
+                    <button class="buy-btn" onclick="unlockGame('guess', 100)">Ochish (100 🪙)</button>
                 </div>
                 <div class="game-play hidden" id="guess-play-screen">
-                    <p>Kompyuter 1 dan 50 gacha son o'yladi. Uni toping va 30 tanga yuting!</p>
+                    <p style="color: #22c55e; font-weight: bold;">🎉 O'yin ochildi! Tez kunda bu yerda o'yin mantiqlari bo'ladi!</p>
                 </div>
             </div>
 
             <div id="react-tab" class="tab-content">
                 <h2>🎮 Kim Chaqqon? o'yini</h2>
                 <div class="locked-content" id="react-lock-screen">
-                    <p>Bu o'yin hozircha qulflangan. Uni ochish uchun 300 ta tanga kerak.</p>
-                    <button class="buy-btn" onclick="unlockGame('react')">Ochish (300 🪙)</button>
+                    <p>Bu o'yin qulflangan. Ochish uchun 300 ta tanga kerak.</p>
+                    <button class="buy-btn" onclick="unlockGame('react', 300)">Ochish (300 🪙)</button>
                 </div>
                 <div class="game-play hidden" id="react-play-screen">
-                    <p>O'yin maydoni yashil rangga kirganda srazu bosing!</p>
+                    <p style="color: #22c55e; font-weight: bold;">🎉 O'yin ochildi! Tez kunda bu yerda o'yin mantiqlari bo'ladi!</p>
                 </div>
             </div>
 
             <div id="wheel-tab" class="tab-content">
                 <h2>🎮 Omad G'ildiragi</h2>
                 <div class="locked-content" id="wheel-lock-screen">
-                    <p>Bu o'yin hozircha qulflangan. Uni ochish uchun 500 ta tanga kerak.</p>
-                    <button class="buy-btn" onclick="unlockGame('wheel')">Ochish (500 🪙)</button>
+                    <p>Bu o'yin qulflangan. Ochish uchun 500 ta tanga kerak.</p>
+                    <button class="buy-btn" onclick="unlockGame('wheel', 500)">Ochish (500 🪙)</button>
                 </div>
                 <div class="game-play hidden" id="wheel-play-screen">
-                    <p>Omadingizni sinab ko'ring!</p>
+                    <p style="color: #22c55e; font-weight: bold;">🎉 O'yin ochildi! Tez kunda bu yerda o'yin mantiqlari bo'ladi!</p>
                 </div>
             </div>
 
             <div id="crypto-tab" class="tab-content">
                 <h2>📈 Kripto Birja Simulyatori</h2>
                 <div class="locked-content" id="crypto-lock-screen">
-                    <p>Bu bo'lim hozircha qulflangan. Uni ochish uchun 1000 ta tanga kerak.</p>
-                    <button class="buy-btn" onclick="unlockGame('crypto')">Ochish (1000 🪙)</button>
+                    <p>Bu bo'lim qulflangan. Ochish uchun 1000 ta tanga kerak.</p>
+                    <button class="buy-btn" onclick="unlockGame('crypto', 1000)">Ochish (1000 🪙)</button>
                 </div>
                 <div class="game-play hidden" id="crypto-play-screen">
-                    <div class="crypto-card">
-                        <h3>🪙 DurovCoin (DRV)</h3>
-                        <p>Joriy narx: <strong id="crypto-price" style="color: #eab308;">100</strong> tanga</p>
-                        <p>Sizdagi DRV miqdori: <strong id="my-crypto">0</strong></p>
-                    </div>
+                    <p style="color: #22c55e; font-weight: bold;">🎉 Bo'lim ochildi! Tez kunda bu yerda birja mantiqlari bo'ladi!</p>
                 </div>
             </div>
 
             <div id="leaderboard-tab" class="tab-content">
-                <h2>🏆 Peshqadamlar Ro'yxati</h2>
+                <h2>🏆 Haqiqiy O'yinchilar Reytingi</h2>
                 <div class="leaderboard-box">
                     <table>
                         <thead>
                             <tr>
                                 <th>O'rin</th>
-                                <th>O'yinchi</th>
+                                <th>O'yinchi niki</th>
                                 <th>Tangalar 🪙</th>
                             </tr>
                         </thead>
