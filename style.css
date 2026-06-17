@@ -1,15 +1,15 @@
 body {
     margin: 0; font-family: 'Segoe UI', sans-serif;
     background: #0f172a; color: #f8fafc;
-    display: flex; justify-content: center; align-items: center; height: 100vh;
-    overflow: hidden;
+    display: flex; justify-content: center; align-items: center; min-height: 100vh;
+    overflow-y: auto; /* Butun ekran mishka g'ildiragida aylanishi uchun */
 }
 *, *::before, *::after { box-sizing: border-box; }
 
 /* Kirish oynasi */
 .auth-container {
     display: flex; justify-content: center; align-items: center; width: 100%; height: 100vh;
-    position: fixed; background: #0f172a; z-index: 1000;
+    position: fixed; background: #0f172a; z-index: 1000; top: 0; left: 0;
 }
 .auth-box {
     background: #1e293b; padding: 45px; border-radius: 24px; text-align: center;
@@ -26,10 +26,11 @@ body {
 }
 .auth-box button:hover { background: #0ea5e9; }
 
-/* Asosiy konteyner */
+/* Asosiy konteyner - endi balandligi moslashuvchan (flexible) va mishka g'ildiragiga itoat qiladi */
 .main-container {
-    display: flex; width: 950px; height: 590px;
-    background: #1e293b; border-radius: 24px; box-shadow: 0 15px 40px rgba(0,0,0,0.6); overflow: hidden;
+    display: flex; width: 950px; min-height: 590px; height: auto;
+    background: #1e293b; border-radius: 24px; box-shadow: 0 15px 40px rgba(0,0,0,0.6); 
+    margin: 30px auto; overflow: hidden;
 }
 .sidebar {
     width: 32%; background: #0f172a; padding: 25px; display: flex; flex-direction: column; border-right: 1px solid #334155;
@@ -48,16 +49,12 @@ nav { display: flex; flex-direction: column; gap: 10px; }
 }
 .nav-btn.active, .nav-btn:hover { background: #38bdf8; color: #0f172a; font-weight: bold; transform: translateX(3px); }
 
-/* Mishka g'ildiragi (Scroll) uchun mukammal panel */
+/* O'yin maydoni - mishka g'ildiragi endi bu yerda mukammal ishlaydi */
 .game-area { 
     width: 68%; padding: 35px; 
-    overflow-y: scroll;
-    scroll-behavior: smooth;
+    height: auto;
+    overflow-y: visible; /* Ichki tiqilish olib tashlandi */
 }
-/* Shaffof va chiroyli scrollbar */
-.game-area::-webkit-scrollbar { width: 6px; }
-.game-area::-webkit-scrollbar-track { background: transparent; }
-.game-area::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
 
 .tab-content { display: none; }
 .tab-content.active { display: block; }
@@ -77,7 +74,7 @@ nav { display: flex; flex-direction: column; gap: 10px; }
 #upgrade-btn:disabled, #robot-btn:disabled { background: #475569; cursor: not-allowed; opacity: 0.5; }
 .stats-footer { margin-top: 15px; text-align: center; font-size: 13px; color: #64748b; }
 
-/* 🎮 Professional O'yin Kartalari */
+/* O'yin Kartalari */
 .locked-content { background: #0f172a; padding: 35px; border-radius: 18px; border: 1px solid #334155; text-align: center; margin-top: 10px; }
 .buy-btn { background: #facc15; color: #0f172a; padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 15px; font-size: 15px; }
 .game-card { background: #0f172a; padding: 25px; border-radius: 18px; border: 1px solid #334155; text-align: center; margin-top: 10px; }
