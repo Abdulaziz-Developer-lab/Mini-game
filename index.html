@@ -59,8 +59,12 @@
                     <button class="buy-btn" onclick="unlockGame('guess', 100)">Ochish (100 🪙)</button>
                 </div>
                 <div class="game-play hidden" id="guess-play-screen">
-                    <p style="color: #22c55e; font-weight: bold; font-size: 18px;">🎉 O'yin muvaffaqiyatli ochildi!</p>
-                    <p>Yaqinda bu yerga o'yin mantiqlari to'liq joylashadi.</p>
+                    <div class="game-box-design">
+                        <p>1 dan 20 gacha bo'lgan sonni o'yladim. Uni topa olasizmi?</p>
+                        <input type="number" id="guess-input" placeholder="Son yozing..." min="1" max="20">
+                        <button class="game-action-btn" onclick="playGuessGame()">Tekshirish</button>
+                        <p id="guess-result" style="margin-top: 15px; font-weight: bold;"></p>
+                    </div>
                 </div>
             </div>
 
@@ -71,8 +75,11 @@
                     <button class="buy-btn" onclick="unlockGame('react', 300)">Ochish (300 🪙)</button>
                 </div>
                 <div class="game-play hidden" id="react-play-screen">
-                    <p style="color: #22c55e; font-weight: bold; font-size: 18px;">🎉 O'yin muvaffaqiyatli ochildi!</p>
-                    <p>Yaqinda bu yerga o'yin mantiqlari to'liq joylashadi.</p>
+                    <div class="game-box-design">
+                        <p>Kvadrat rangi 🟢 YASHIL bo'lishi bilan uni tezda bosing!</p>
+                        <div id="react-box" onclick="clickReactBox()">Boshlash uchun bosing</div>
+                        <p id="react-result" style="margin-top: 15px; font-weight: bold;"></p>
+                    </div>
                 </div>
             </div>
 
@@ -83,8 +90,14 @@
                     <button class="buy-btn" onclick="unlockGame('wheel', 500)">Ochish (500 🪙)</button>
                 </div>
                 <div class="game-play hidden" id="wheel-play-screen">
-                    <p style="color: #22c55e; font-weight: bold; font-size: 18px;">🎉 O'yin muvaffaqiyatli ochildi!</p>
-                    <p>Yaqinda bu yerga o'yin mantiqlari to'liq joylashadi.</p>
+                    <div class="game-box-design">
+                        <p>G'ildirakni aylantiring va tasodifiy mukofot yuting! (Har bir aylantirish: 20 tanga)</p>
+                        <div class="wheel-container">
+                            <div id="wheel">🎡</div>
+                        </div>
+                        <button id="spin-btn" class="game-action-btn" onclick="spinWheel()">Aylantirish (20 🪙)</button>
+                        <p id="wheel-result" style="margin-top: 15px; font-weight: bold;"></p>
+                    </div>
                 </div>
             </div>
 
@@ -95,8 +108,16 @@
                     <button class="buy-btn" onclick="unlockGame('crypto', 1000)">Ochish (1000 🪙)</button>
                 </div>
                 <div class="game-play hidden" id="crypto-play-screen">
-                    <p style="color: #22c55e; font-weight: bold; font-size: 18px;">🎉 Bo'lim muvaffaqiyatli ochildi!</p>
-                    <p>Yaqinda bu yerga birja mantiqlari to'liq joylashadi.</p>
+                    <div class="game-box-design">
+                        <h3>DrovCoin (DRV)</h3>
+                        <p>Joriy narx: <strong id="crypto-price" style="color: #eab308;">100</strong> tanga</p>
+                        <p>Sizdagi DRV miqdori: <strong id="my-crypto">0</strong></p>
+                        <div class="crypto-actions" style="margin-top: 15px; display: flex; gap: 10px; justify-content: center;">
+                            <button class="buy-btn" style="margin:0; background: #22c55e;" onclick="buyCrypto()">Sotib olish</button>
+                            <button class="buy-btn" style="margin:0; background: #ef4444;" onclick="sellCrypto()">Sotish</button>
+                        </div>
+                        <p style="margin-top: 15px; font-size: 12px; color: #94a3b8;">*Narx har 3 soniyada o'zgaradi. Arzonida olib, qimmatida soting!</p>
+                    </div>
                 </div>
             </div>
 
