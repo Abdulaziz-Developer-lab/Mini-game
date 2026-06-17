@@ -4,8 +4,6 @@ const robotBtn = document.getElementById('robot-btn');
 const clickBtn = document.getElementById('click-btn');
 
 let myUsername = localStorage.getItem('arcade_username') || "";
-
-// Ichki o'yin o'zgaruvchilari
 let secretNum = Math.floor(Math.random() * 20) + 1;
 let reactTimer, reactStart;
 let currentCryptoPrice = 100;
@@ -36,7 +34,6 @@ async function showGameScreen() {
     await loadFromServer();
     await loadLeaderboard();
     
-    // Sinxronizatsiya intervallari
     setInterval(loadFromServer, 1000);
     setInterval(loadLeaderboard, 3000);
     setInterval(triggerAutoCollect, 1000);
@@ -71,7 +68,6 @@ function updateUI(state) {
         robotBtn.disabled = state.score < state.autoclickCost;
     }
 
-    // Bloklarni to'g'ri boshqarish (Xunuk yashil yozuvlar butunlay yo'qoldi!)
     toggleLockState('guess', state.gamesUnlocked.guess);
     toggleLockState('react', state.gamesUnlocked.react);
     toggleLockState('wheel', state.gamesUnlocked.wheel);
@@ -161,7 +157,6 @@ async function unlockGame(gameId, cost) {
     } catch (e) { console.error(e); }
 }
 
-// 🕹️ 1. SONNI TOP GAMEPLAY
 async function playGuessGame() {
     const val = parseInt(document.getElementById('guess-input').value);
     const resTxt = document.getElementById('guess-result');
@@ -178,7 +173,6 @@ async function playGuessGame() {
     }
 }
 
-// 🕹️ 2. KIM CHAQQON GAMEPLAY
 function clickReactBox() {
     const box = document.getElementById('react-box');
     const resTxt = document.getElementById('react-result');
@@ -212,7 +206,6 @@ function clickReactBox() {
     }
 }
 
-// 🕹️ 3. OMAD G'ILDIRAGI GAMEPLAY
 async function spinWheel() {
     const btn = document.getElementById('spin-btn');
     const wheel = document.getElementById('wheel-element');
@@ -241,7 +234,6 @@ async function spinWheel() {
     }, 2000);
 }
 
-// 🕹️ 4. KRIPTO BIRJA GAMEPLAY
 function randomizeCrypto() {
     let delta = Math.floor(Math.random() * 50) - 25;
     currentCryptoPrice += delta;
