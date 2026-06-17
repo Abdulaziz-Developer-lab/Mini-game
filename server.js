@@ -26,7 +26,7 @@ app.use(express.static(__dirname));
 
 // --- SIZNING FUNKSIYALARINGIZ ---
 
-// O'yinchi ma'lumotlarini olish yoki yaratish
+// O'yinchi ma'lumotlarini olish yoki yaratish (O'z holida qoladi)
 app.post('/api/get-player', (req, res) => {
     const { username } = req.body;
     if (!username) return res.status(400).json({ error: "Nik kiritilmadi!" });
@@ -43,32 +43,23 @@ app.post('/api/get-player', (req, res) => {
         };
     }
     res.json(playersDatabase[username]);
-});
+}); // <--- Mana bu yerda get-player funksiyasi tugadi!
 
-// Tanga bosish
-app.post('/api/click', (req, res) => {
-    const { username } = req.body;
-    if (!username || !playersDatabase[username]) return res.status(400).json({ error: "O'yinchi topilmadi!" });
+// --- PESHQADAMLAR RO'YXATINI OLISH (MUTLAQO ALOHIDA FUNKSIYA) ---
+app.get('/api/leaderboard', (req, res) => {
+    // 1. Bazadagi barcha o'yinchilarni massiv shakliga keltiramiz
+    const leaderboard = Object.keys(playersDatabase).map(username => {
+        return {
+            username: username,
+            score: playersDatabase[username].score
+        };
+    });
 
-    playersDatabase[username].score += playersDatabase[username].clickPower;
-    res.json({ success: true, score: playersDatabase[username].score });
-});
+    // 2. Tangalar soni bo'yicha eng ko'pdan kamiga qarab tartiblaymiz
+    leaderboard.sort((a, b) => b.score - a.score);
 
-// Kuchaytirish (Upgrade)
-app.post('/api/upgrade', (req, res) => {
-    const { username } = req.body;
-    if (!username || !playersDatabase[username]) return res.status(400).json({ error: "O'yinchi topilmadi!" });
-    
-    res.json({ success: true });
-});
+    // 3. Faqat eng kuchli 10 ta o'yinchini frontend'ga yuboramiz
+    const topPlayers = leaderboard.slice(0, 10);
 
-// Asosiy sahifani ochish
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-// --- SERVERNI ISHGA TUSHIRISH (RENDER UCHUN) ---
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server ${PORT}-portda ishlamoqda`);
+    res.json(topPlayers);
 });
