@@ -1,27 +1,25 @@
 const scoreDisplay = document.getElementById('score');
 const upgradeBtn = document.getElementById('upgrade-btn');
+const robotBtn = document.getElementById('robot-btn');
 const clickBtn = document.getElementById('click-btn');
 
 let myUsername = localStorage.getItem('arcade_username') || "";
 
-// Sahifa yuklanganda ekranlar holatini tekshirish
 window.onload = () => {
     if (myUsername) { 
         showGameScreen(); 
     } else { 
-        // Agar nik yo'q bo'lsa, kirish ekranini ko'rsatish, o'yinni yashirish
         document.getElementById('auth-screen').classList.remove('hidden');
         document.getElementById('main-game-screen').classList.add('hidden');
     }
 };
 
-// Kirish tugmasi bosilganda ishlaydigan funksiya
 async function loginPlayer() {
     const inputField = document.getElementById('username-input');
     const input = inputField ? inputField.value.trim() : "";
     
     if (!input) { 
-        alert("Iltimos, nik yozing!"); 
+        alert("Iltimos, o'yinchi nikini kiriting!"); 
         return; 
     }
     
@@ -31,7 +29,6 @@ async function loginPlayer() {
 }
 
 async function showGameScreen() {
-    // Ekranlarni almashtirish
     document.getElementById('auth-screen').classList.add('hidden');
     document.getElementById('main-game-screen').classList.remove('hidden');
     document.getElementById('display-username').textContent = myUsername;
@@ -39,9 +36,10 @@ async function showGameScreen() {
     await loadFromServer();
     await loadLeaderboard();
     
-    // Serverdan ma'lumotlarni yangilab turish
+    // Taymerlar: Ma'lumotlarni yangilash va Avto robot daromadi
     setInterval(loadFromServer, 1500);
     setInterval(loadLeaderboard, 3000);
+    setInterval(autoCollectCoins, 1000); // Har soniyada robot tanga yig'adi
 }
 
 async function loadFromServer() {
@@ -60,12 +58,21 @@ async function loadFromServer() {
 function updateUI(state) {
     if (scoreDisplay) scoreDisplay.textContent = state.score;
     if (document.getElementById('click-power')) document.getElementById('click-power').textContent = state.clickPower;
+    if (document.getElementById('auto-power')) document.getElementById('auto-power').textContent = state.autoPower;
+    
+    // Upgrade tugmasi holati
     if (upgradeBtn) {
         upgradeBtn.textContent = `Kuchaytirish (${state.upgradeCost})`;
         upgradeBtn.disabled = state.score < state.upgradeCost;
     }
 
-    // Mini o'yinlar holati
+    // Robot tugmasi holati
+    if (robotBtn) {
+        robotBtn.textContent = `🤖 Avto Robot (${state.autoclickCost})`;
+        robotBtn.disabled = state.score < state.autoclickCost;
+    }
+
+    // Mini o'yinlar qulflarini tekshirish
     checkAndToggleLock('guess', state.gamesUnlocked.guess);
     checkAndToggleLock('react', state.gamesUnlocked.react);
     checkAndToggleLock('wheel', state.gamesUnlocked.wheel);
@@ -84,6 +91,7 @@ function checkAndToggleLock(gameId, isUnlocked) {
     }
 }
 
+// Click tugmasi hodisasi
 if (clickBtn) {
     clickBtn.addEventListener('click', async () => {
         try {
@@ -98,6 +106,7 @@ if (clickBtn) {
     });
 }
 
+// Kuchaytirish tugmasi hodisasi
 if (upgradeBtn) {
     upgradeBtn.addEventListener('click', async () => {
         try {
@@ -112,6 +121,38 @@ if (upgradeBtn) {
     });
 }
 
+// Avto robot sotib olish hodisasi
+if (robotBtn) {
+    robotBtn.addEventListener('click', async () => {
+        try {
+            const response = await fetch('/api/buy-robot', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: myUsername })
+            });
+            const data = await response.json();
+            if (data.success) { updateUI(data.state); }
+        } catch (e) { console.error(e); }
+    });
+}
+
+// Robot har soniyada serverga tanga qo'shishi uchun funksiya
+async function autoCollectCoins() {
+    if (!myUsername) return;
+    try {
+        const response = await fetch('/api/auto-collect', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: myUsername })
+        });
+        const data = await response.json();
+        if (data.success && scoreDisplay) {
+            scoreDisplay.textContent = data.score;
+        }
+    } catch (e) { console.error(e); }
+}
+
+// O'yinlar qulfini ochish funksiyasi
 async function unlockGame(gameId, cost) {
     try {
         const response = await fetch('/api/unlock-game', {
@@ -121,7 +162,7 @@ async function unlockGame(gameId, cost) {
         });
         const data = await response.json();
         if (data.success) {
-            alert("O'yin muvaffaqiyatli ochildi! 🎉");
+            alert("O'yin ochildi! 🚀");
             updateUI(data.state);
         } else {
             alert(data.message);
@@ -129,6 +170,7 @@ async function unlockGame(gameId, cost) {
     } catch (e) { console.error(e); }
 }
 
+// Leaderboardni yangilash
 async function loadLeaderboard() {
     try {
         const response = await fetch('/api/leaderboard');
