@@ -8,6 +8,7 @@
 </head>
 <body>
 
+    <!-- 🚪 NIK KIRITISH OYNASI -->
     <div id="auth-screen" class="auth-container">
         <div class="auth-box">
             <h2>Arcade Hub Tizimi 🎮</h2>
@@ -17,15 +18,17 @@
         </div>
     </div>
 
+    <!-- 🎮 ASOSIY O'YIN ARSENOXASI -->
     <div class="main-container hidden" id="main-game-screen">
         
+        <!-- SIDEBAR -->
         <div class="sidebar">
             <h2>Arcade Hub</h2>
             <div class="user-info">O'yinchi: <strong id="display-username">...</strong></div>
             <div class="balance-box">
                 <p>Sizning balansingiz:</p>
                 <div id="score">0</div>
-                <p>tangalar 🪙</p>
+                <p>tangalar</p>
             </div>
             <nav>
                 <button class="nav-btn active" onclick="switchTab('clicker-tab')">👆 Clicker</button>
@@ -37,27 +40,34 @@
             </nav>
         </div>
 
+        <!-- O'YIN MAYDONI (SCROLL VA ICHKI DIZAYN MUKAMMAL) -->
         <div class="game-area">
             
+            <!-- CLICKER BO'LIMI -->
             <div id="clicker-tab" class="tab-content active">
                 <h2>Asosiy Clicker O'yini</h2>
                 <p>Oltin tangani bosing va boylik orttiring!</p>
-                <button id="click-btn">🪙</button>
+                
+                <!-- Buziladigan emoji o'rniga CSS Oltin Tanga -->
+                <div class="coin-container">
+                    <div id="click-btn" class="gold-coin">🪙</div>
+                </div>
                 
                 <div class="upgrade-container">
                     <button id="upgrade-btn" disabled>Kuchaytirish (Narxi: 10)</button>
                     <button id="robot-btn" disabled>🤖 Avto Robot (Narxi: 50)</button>
                 </div>
                 <div class="stats-footer">
-                    <p>Har bir bosish: +<span id="click-power">1</span> | Avto robot: +<span id="auto-power">0</span>/sek</p>
+                    <p>Har bir bosish: +<span id="click-power">1</span> tanga | Avto robot: +<span id="auto-power">0</span>/sek</p>
                 </div>
             </div>
 
+            <!-- SONNI TOP O'YINI -->
             <div id="guess-tab" class="tab-content">
                 <h2>🎮 Sonni Top O'yini</h2>
                 <div class="locked-content" id="guess-lock-screen">
                     <p>Bu o'yin qulflangan. Ochish uchun 100 ta tanga kerak.</p>
-                    <button class="buy-btn" onclick="unlockGame('guess', 100)">Ochish (100 🪙)</button>
+                    <button class="buy-btn" onclick="unlockGame('guess', 100)">Ochish (100)</button>
                 </div>
                 <div class="game-play hidden" id="guess-play-screen">
                     <div class="game-card">
@@ -71,11 +81,12 @@
                 </div>
             </div>
 
+            <!-- KIM CHAQQON O'YINI -->
             <div id="react-tab" class="tab-content">
                 <h2>🎮 Kim Chaqqon?</h2>
                 <div class="locked-content" id="react-lock-screen">
                     <p>Bu o'yin qulflangan. Ochish uchun 300 ta tanga kerak.</p>
-                    <button class="buy-btn" onclick="unlockGame('react', 300)">Ochish (300 🪙)</button>
+                    <button class="buy-btn" onclick="unlockGame('react', 300)">Ochish (300)</button>
                 </div>
                 <div class="game-play hidden" id="react-play-screen">
                     <div class="game-card">
@@ -86,11 +97,12 @@
                 </div>
             </div>
 
+            <!-- OMAD G'ILDIRAGI -->
             <div id="wheel-tab" class="tab-content">
                 <h2>🎮 Omad G'ildiragi</h2>
                 <div class="locked-content" id="wheel-lock-screen">
                     <p>Bu o'yin qulflangan. Ochish uchun 500 ta tanga kerak.</p>
-                    <button class="buy-btn" onclick="unlockGame('wheel', 500)">Ochish (500 🪙)</button>
+                    <button class="buy-btn" onclick="unlockGame('wheel', 500)">Ochish (500)</button>
                 </div>
                 <div class="game-play hidden" id="wheel-play-screen">
                     <div class="game-card">
@@ -98,23 +110,24 @@
                         <div class="wheel-box">
                             <div id="wheel-element">🎡</div>
                         </div>
-                        <button id="spin-btn" class="action-btn" onclick="spinWheel()">Aylantirish (30 🪙)</button>
+                        <button id="spin-btn" class="action-btn" onclick="spinWheel()">Aylantirish (30)</button>
                         <p id="wheel-result" class="result-text"></p>
                     </div>
                 </div>
             </div>
 
+            <!-- KRIPTO BIRJA -->
             <div id="crypto-tab" class="tab-content">
                 <h2>📈 Kripto Birja</h2>
                 <div class="locked-content" id="crypto-lock-screen">
                     <p>Bu bo'lim qulflangan. Ochish uchun 1000 ta tanga kerak.</p>
-                    <button class="buy-btn" onclick="unlockGame('crypto', 1000)">Ochish (1000 🪙)</button>
+                    <button class="buy-btn" onclick="unlockGame('crypto', 1000)">Ochish (1000)</button>
                 </div>
                 <div class="game-play hidden" id="crypto-play-screen">
                     <div class="game-card">
                         <h3>DrovCoin (DRV)</h3>
                         <div class="crypto-dashboard">
-                            <p>Narxi: <strong id="crypto-price" style="color: #eab308; font-size: 24px;">100</strong> 🪙</p>
+                            <p>Narxi: <strong id="crypto-price" style="color: #eab308; font-size: 24px;">100</strong></p>
                             <p>Sizdagi miqdor: <strong id="my-crypto" style="color: #38bdf8; font-size: 24px;">0</strong> DRV</p>
                         </div>
                         <div class="crypto-buttons">
@@ -126,6 +139,7 @@
                 </div>
             </div>
 
+            <!-- REYTING BO'LIMI -->
             <div id="leaderboard-tab" class="tab-content">
                 <h2>🏆 Peshqadamlar Ro'yxati</h2>
                 <div class="leaderboard-box">
@@ -134,7 +148,7 @@
                             <tr>
                                 <th>O'rin</th>
                                 <th>O'yinchi niki</th>
-                                <th>Tangalar 🪙</th>
+                                <th>Tangalar</th>
                             </tr>
                         </thead>
                         <tbody id="leaderboard-body"></tbody>
