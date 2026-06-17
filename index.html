@@ -8,7 +8,6 @@
 </head>
 <body>
 
-    <!-- 🚪 NIK KIRITISH OYNASI -->
     <div id="auth-screen" class="auth-container">
         <div class="auth-box">
             <h2>Arcade Hub Tizimi 🎮</h2>
@@ -18,10 +17,8 @@
         </div>
     </div>
 
-    <!-- 🎮 ASOSIY O'YIN ARSENOXASI -->
     <div class="main-container hidden" id="main-game-screen">
         
-        <!-- SIDEBAR -->
         <div class="sidebar">
             <h2>Arcade Hub</h2>
             <div class="user-info">O'yinchi: <strong id="display-username">...</strong></div>
@@ -32,25 +29,22 @@
             </div>
             <nav>
                 <button class="nav-btn active" onclick="switchTab('clicker-tab')">👆 Clicker</button>
-                <button class="nav-btn" id="nav-guess" onclick="switchTab('guess-tab')">🔒 Sonni Top</button>
-                <button class="nav-btn" id="nav-react" onclick="switchTab('react-tab')">🔒 Kim Chaqqon?</button>
-                <button class="nav-btn" id="nav-wheel" onclick="switchTab('wheel-tab')">🔒 Omad G'ildiragi</button>
-                <button class="nav-btn" id="nav-crypto" onclick="switchTab('crypto-tab')">🔒 Kripto Birja</button>
+                <button class="nav-btn" id="nav-guess" onclick="switchTab('guess-tab')">🎮 Sonni Top</button>
+                <button class="nav-btn" id="nav-react" onclick="switchTab('react-tab')">🎮 Kim Chaqqon?</button>
+                <button class="nav-btn" id="nav-wheel" onclick="switchTab('wheel-tab')">🎮 Omad G'ildiragi</button>
+                <button class="nav-btn" id="nav-crypto" onclick="switchTab('crypto-tab')">🎮 Kripto Birja</button>
                 <button class="nav-btn" id="nav-leaderboard" onclick="switchTab('leaderboard-tab')">🏆 Reyting</button>
             </nav>
         </div>
 
-        <!-- O'YIN MAYDONI (SCROLL VA ICHKI DIZAYN MUKAMMAL) -->
         <div class="game-area">
             
-            <!-- CLICKER BO'LIMI -->
             <div id="clicker-tab" class="tab-content active">
                 <h2>Asosiy Clicker O'yini</h2>
                 <p>Oltin tangani bosing va boylik orttiring!</p>
                 
-                <!-- Buziladigan emoji o'rniga CSS Oltin Tanga -->
                 <div class="coin-container">
-                    <div id="click-btn" class="gold-coin">🪙</div>
+                    <div id="click-btn" class="gold-coin">BOSING</div>
                 </div>
                 
                 <div class="upgrade-container">
@@ -62,7 +56,6 @@
                 </div>
             </div>
 
-            <!-- SONNI TOP O'YINI -->
             <div id="guess-tab" class="tab-content">
                 <h2>🎮 Sonni Top O'yini</h2>
                 <div class="locked-content" id="guess-lock-screen">
@@ -81,7 +74,6 @@
                 </div>
             </div>
 
-            <!-- KIM CHAQQON O'YINI -->
             <div id="react-tab" class="tab-content">
                 <h2>🎮 Kim Chaqqon?</h2>
                 <div class="locked-content" id="react-lock-screen">
@@ -97,7 +89,6 @@
                 </div>
             </div>
 
-            <!-- OMAD G'ILDIRAGI -->
             <div id="wheel-tab" class="tab-content">
                 <h2>🎮 Omad G'ildiragi</h2>
                 <div class="locked-content" id="wheel-lock-screen">
@@ -116,7 +107,6 @@
                 </div>
             </div>
 
-            <!-- KRIPTO BIRJA -->
             <div id="crypto-tab" class="tab-content">
                 <h2>📈 Kripto Birja</h2>
                 <div class="locked-content" id="crypto-lock-screen">
@@ -139,7 +129,6 @@
                 </div>
             </div>
 
-            <!-- REYTING BO'LIMI -->
             <div id="leaderboard-tab" class="tab-content">
                 <h2>🏆 Peshqadamlar Ro'yxati</h2>
                 <div class="leaderboard-box">
