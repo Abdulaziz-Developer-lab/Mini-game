@@ -6,10 +6,8 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// Haqiqiy o'yinchilar bazasi (Render o'chib-yonmaguncha saqlanadi)
 let playersDatabase = {};
 
-// O'yinchi ma'lumotlarini olish yoki yangi profil yaratish
 app.post('/api/get-player', (req, res) => {
     const { username } = req.body;
     if (!username) return res.status(400).json({ error: "Nik kiritilmadi!" });
@@ -28,7 +26,6 @@ app.post('/api/get-player', (req, res) => {
     res.json(playersDatabase[username]);
 });
 
-// Clicker API
 app.post('/api/click', (req, res) => {
     const { username } = req.body;
     if (!username || !playersDatabase[username]) return res.status(400).json({ error: "O'yinchi topilmadi!" });
@@ -37,7 +34,6 @@ app.post('/api/click', (req, res) => {
     res.json({ success: true, score: playersDatabase[username].score });
 });
 
-// Click Kuchaytirish (Upgrade) API
 app.post('/api/upgrade', (req, res) => {
     const { username } = req.body;
     if (!username || !playersDatabase[username]) return res.status(400).json({ error: "O'yinchi topilmadi!" });
@@ -53,7 +49,6 @@ app.post('/api/upgrade', (req, res) => {
     }
 });
 
-// Avto Robot (Auto Clicker) API
 app.post('/api/buy-robot', (req, res) => {
     const { username } = req.body;
     if (!username || !playersDatabase[username]) return res.status(400).json({ error: "O'yinchi topilmadi!" });
@@ -69,19 +64,15 @@ app.post('/api/buy-robot', (req, res) => {
     }
 });
 
-// Avto-robot daromadini hisoblash
 app.post('/api/auto-collect', (req, res) => {
     const { username } = req.body;
     if (!username || !playersDatabase[username]) return res.status(400).json({ error: "O'yinchi topilmadi!" });
 
     let player = playersDatabase[username];
-    if (player.autoPower > 0) {
-        player.score += player.autoPower;
-    }
+    if (player.autoPower > 0) { player.score += player.autoPower; }
     res.json({ success: true, score: player.score });
 });
 
-// O'yinlarni sotib olish (Qulfdan ochish) API
 app.post('/api/unlock-game', (req, res) => {
     const { username, gameId, cost } = req.body;
     if (!username || !playersDatabase[username]) return res.status(400).json({ error: "O'yinchi topilmadi!" });
@@ -96,7 +87,6 @@ app.post('/api/unlock-game', (req, res) => {
     }
 });
 
-// Mini o'yinlardan yutgan mukofotni qo'shish API
 app.post('/api/reward-player', (req, res) => {
     const { username, amount } = req.body;
     if (!username || !playersDatabase[username]) return res.status(400).json({ error: "O'yinchi topilmadi!" });
@@ -106,29 +96,23 @@ app.post('/api/reward-player', (req, res) => {
     res.json({ success: true, score: playersDatabase[username].score });
 });
 
-// Kripto sotib olish/sotish uchun sinxronizatsiya API
 app.post('/api/crypto-trade', (req, res) => {
     const { username, action, price } = req.body;
     let player = playersDatabase[username];
     if (!player) return res.status(400).json({ error: "O'yinchi topilmadi!" });
 
-    if (action === 'buy') {
-        if (player.score >= price) {
-            player.score -= price;
-            player.myCryptoCount += 1;
-            return res.json({ success: true, state: player });
-        }
-    } else if (action === 'sell') {
-        if (player.myCryptoCount > 0) {
-            player.score += price;
-            player.myCryptoCount -= 1;
-            return res.json({ success: true, state: player });
-        }
+    if (action === 'buy' && player.score >= price) {
+        player.score -= price;
+        player.myCryptoCount += 1;
+        return res.json({ success: true, state: player });
+    } else if (action === 'sell' && player.myCryptoCount > 0) {
+        player.score += price;
+        player.myCryptoCount -= 1;
+        return res.json({ success: true, state: player });
     }
-    res.status(400).json({ success: false, message: "Amalni bajarib bo'lmadi!" });
+    res.status(400).json({ success: false, message: "Mablag' yoki mahsulot yetarli emas!" });
 });
 
-// Jonli Leaderboard (Reyting)
 app.get('/api/leaderboard', (req, res) => {
     let sorted = Object.keys(playersDatabase).map(user => {
         return { name: user, score: playersDatabase[user].score };
@@ -136,8 +120,5 @@ app.get('/api/leaderboard', (req, res) => {
     res.json(sorted);
 });
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-app.listen(PORT, () => console.log(`Server ishlamoqda: port ${PORT}`));
+app.get('/', (req, res) => { res.sendFile(path.join(__dirname, 'index.html')); });
+app.listen(PORT, () => console.log(`Server porti: ${PORT}`));
