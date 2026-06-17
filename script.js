@@ -5,11 +5,10 @@ const clickBtn = document.getElementById('click-btn');
 
 let myUsername = localStorage.getItem('arcade_username') || "";
 
-// Mini o'yin ichki o'zgaruvchilari
-let secretNumber = Math.floor(Math.random() * 20) + 1;
-let reactTimeout, reactStartTime;
-let cryptoPrice = 100;
-let myCryptoCount = 0;
+// Ichki o'yin o'zgaruvchilari
+let secretNum = Math.floor(Math.random() * 20) + 1;
+let reactTimer, reactStart;
+let currentCryptoPrice = 100;
 
 window.onload = () => {
     if (myUsername) { 
@@ -21,13 +20,8 @@ window.onload = () => {
 };
 
 async function loginPlayer() {
-    const inputField = document.getElementById('username-input');
-    const input = inputField ? inputField.value.trim() : "";
-    
-    if (!input) { 
-        alert("Iltimos, o'yinchi nikini kiriting!"); 
-        return; 
-    }
+    const input = document.getElementById('username-input').value.trim();
+    if (!input) { alert("Iltimos, nik kiriting!"); return; }
     
     myUsername = input;
     localStorage.setItem('arcade_username', myUsername);
@@ -42,47 +36,49 @@ async function showGameScreen() {
     await loadFromServer();
     await loadLeaderboard();
     
-    setInterval(loadFromServer, 1500);
+    // Sinxronizatsiya intervallari
+    setInterval(loadFromServer, 1000);
     setInterval(loadLeaderboard, 3000);
-    setInterval(autoCollectCoins, 1000);
-    setInterval(updateCryptoPrice, 3000); // Kripto narxini o'zgartirib turish
+    setInterval(triggerAutoCollect, 1000);
+    setInterval(randomizeCrypto, 3000); 
 }
 
 async function loadFromServer() {
     if (!myUsername) return;
     try {
-        const response = await fetch('/api/get-player', {
+        const res = await fetch('/api/get-player', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username: myUsername })
         });
-        const data = await response.json();
+        const data = await res.json();
         updateUI(data);
-    } catch (error) { console.error("Xato:", error); }
+    } catch (e) { console.error(e); }
 }
 
 function updateUI(state) {
     if (scoreDisplay) scoreDisplay.textContent = state.score;
     if (document.getElementById('click-power')) document.getElementById('click-power').textContent = state.clickPower;
     if (document.getElementById('auto-power')) document.getElementById('auto-power').textContent = state.autoPower;
+    if (document.getElementById('my-crypto')) document.getElementById('my-crypto').textContent = state.myCryptoCount;
     
     if (upgradeBtn) {
         upgradeBtn.textContent = `Kuchaytirish (${state.upgradeCost})`;
         upgradeBtn.disabled = state.score < state.upgradeCost;
     }
-
     if (robotBtn) {
         robotBtn.textContent = `🤖 Avto Robot (${state.autoclickCost})`;
         robotBtn.disabled = state.score < state.autoclickCost;
     }
 
-    checkAndToggleLock('guess', state.gamesUnlocked.guess);
-    checkAndToggleLock('react', state.gamesUnlocked.react);
-    checkAndToggleLock('wheel', state.gamesUnlocked.wheel);
-    checkAndToggleLock('crypto', state.gamesUnlocked.crypto);
+    // Bloklarni to'g'ri boshqarish (Xunuk yashil yozuvlar butunlay yo'qoldi!)
+    toggleLockState('guess', state.gamesUnlocked.guess);
+    toggleLockState('react', state.gamesUnlocked.react);
+    toggleLockState('wheel', state.gamesUnlocked.wheel);
+    toggleLockState('crypto', state.gamesUnlocked.crypto);
 }
 
-function checkAndToggleLock(gameId, isUnlocked) {
+function toggleLockState(gameId, isUnlocked) {
     const lockScreen = document.getElementById(`${gameId}-lock-screen`);
     const playScreen = document.getElementById(`${gameId}-play-screen`);
     const navBtn = document.getElementById(`nav-${gameId}`);
@@ -91,19 +87,22 @@ function checkAndToggleLock(gameId, isUnlocked) {
         if (lockScreen) lockScreen.classList.add('hidden');
         if (playScreen) playScreen.classList.remove('hidden');
         if (navBtn) navBtn.innerHTML = navBtn.innerHTML.replace('🔒', '🎮');
+    } else {
+        if (lockScreen) lockScreen.classList.remove('hidden');
+        if (playScreen) playScreen.classList.add('hidden');
     }
 }
 
 if (clickBtn) {
     clickBtn.addEventListener('click', async () => {
         try {
-            const response = await fetch('/api/click', {
+            const res = await fetch('/api/click', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username: myUsername })
             });
-            const data = await response.json();
-            if (data.success) { if (scoreDisplay) scoreDisplay.textContent = data.score; }
+            const data = await res.json();
+            if (data.success) scoreDisplay.textContent = data.score;
         } catch (e) { console.error(e); }
     });
 }
@@ -111,13 +110,13 @@ if (clickBtn) {
 if (upgradeBtn) {
     upgradeBtn.addEventListener('click', async () => {
         try {
-            const response = await fetch('/api/upgrade', {
+            const res = await fetch('/api/upgrade', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username: myUsername })
             });
-            const data = await response.json();
-            if (data.success) { updateUI(data.state); }
+            const data = await res.json();
+            if (data.success) updateUI(data.state);
         } catch (e) { console.error(e); }
     });
 }
@@ -125,191 +124,169 @@ if (upgradeBtn) {
 if (robotBtn) {
     robotBtn.addEventListener('click', async () => {
         try {
-            const response = await fetch('/api/buy-robot', {
+            const res = await fetch('/api/buy-robot', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username: myUsername })
             });
-            const data = await response.json();
-            if (data.success) { updateUI(data.state); }
+            const data = await res.json();
+            if (data.success) updateUI(data.state);
         } catch (e) { console.error(e); }
     });
 }
 
-async function autoCollectCoins() {
+async function triggerAutoCollect() {
     if (!myUsername) return;
     try {
-        const response = await fetch('/api/auto-collect', {
+        const res = await fetch('/api/auto-collect', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username: myUsername })
         });
-        const data = await response.json();
-        if (data.success && scoreDisplay) {
-            scoreDisplay.textContent = data.score;
-        }
+        const data = await res.json();
+        if (data.success) scoreDisplay.textContent = data.score;
     } catch (e) { console.error(e); }
 }
 
 async function unlockGame(gameId, cost) {
     try {
-        const response = await fetch('/api/unlock-game', {
+        const res = await fetch('/api/unlock-game', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username: myUsername, gameId: gameId, cost: cost })
         });
-        const data = await response.json();
-        if (data.success) {
-            updateUI(data.state);
-        } else {
-            alert(data.message);
-        }
+        const data = await res.json();
+        if (data.success) updateUI(data.state);
+        else alert(data.message);
     } catch (e) { console.error(e); }
 }
 
-// 🕹️ 1-O'YIN: SONNI TOP MANTIQI
+// 🕹️ 1. SONNI TOP GAMEPLAY
 async function playGuessGame() {
-    const input = parseInt(document.getElementById('guess-input').value);
-    const result = document.getElementById('guess-result');
-    if (!input) return;
+    const val = parseInt(document.getElementById('guess-input').value);
+    const resTxt = document.getElementById('guess-result');
+    if (isNaN(val)) return;
 
-    if (input === secretNumber) {
-        result.style.color = '#22c55e';
-        result.textContent = "🎉 To'g'ri! Sizga 50 ta tanga mukofot berildi!";
-        secretNumber = Math.floor(Math.random() * 20) + 1; // yangi son
-        await rewardPlayer(50);
-    } else if (input > secretNumber) {
-        result.style.color = '#ef4444';
-        result.textContent = "Kattaroq son yozdingiz, kichikroq urinib ko'ring.";
+    if (val === secretNum) {
+        resTxt.style.color = "#22c55e";
+        resTxt.textContent = "🎉 To'g'ri! Mukofot: +40 tanga!";
+        secretNum = Math.floor(Math.random() * 20) + 1;
+        await sendReward(40);
     } else {
-        result.style.color = '#ef4444';
-        result.textContent = "Kichikroq son yozdingiz, kattaroq urinib ko'ring.";
+        resTxt.style.color = "#ef4444";
+        resTxt.textContent = val > secretNum ? "Kichikroq son o'ylang 👇" : "Kattaroq son o'ylang 👆";
     }
 }
 
-// 🕹️ 2-O'YIN: KIM CHAQQON MANTIQI
+// 🕹️ 2. KIM CHAQQON GAMEPLAY
 function clickReactBox() {
     const box = document.getElementById('react-box');
-    const result = document.getElementById('react-result');
+    const resTxt = document.getElementById('react-result');
 
-    if (box.textContent === "Boshlash uchun bosing" || box.textContent.includes("Yana")) {
+    if (box.textContent === "Boshlash uchun bosing" || box.textContent.includes("Qayta")) {
         box.style.background = "#ef4444";
         box.textContent = "Kuting...";
-        result.textContent = "";
+        resTxt.textContent = "";
         
-        const randomDelay = Math.random() * 3000 + 2000; // 2-5 soniya kutiladi
-        reactTimeout = setTimeout(() => {
+        reactTimer = setTimeout(() => {
             box.style.background = "#22c55e";
             box.textContent = "BOSING!!!";
-            reactStartTime = Date.now();
-        }, randomDelay);
+            reactStart = Date.now();
+        }, Math.random() * 2500 + 1500);
     } else if (box.textContent === "Kuting...") {
-        clearTimeout(reactTimeout);
+        clearTimeout(reactTimer);
         box.style.background = "#ef4444";
-        box.textContent = "Ertaroq bosdingiz! Qayta boshlang.";
+        box.textContent = "Ertaroq bosdingiz! Qayta urinish 🔄";
     } else if (box.textContent === "BOSING!!!") {
-        const reactTime = Date.now() - reactStartTime;
+        const duration = Date.now() - reactStart;
         box.style.background = "#3b82f6";
-        box.textContent = "Yana o'ynash 🔄";
-        
-        if (reactTime < 400) {
-            result.style.color = '#22c55e';
-            result.textContent = `Super chaqqon! Tezlik: ${reactTime}ms. +40 tanga!`;
-            rewardPlayer(40);
+        box.textContent = "Qayta boshlash 🔄";
+        if (duration < 380) {
+            resTxt.style.color = "#22c55e";
+            resTxt.textContent = `⚡ Chaqqon! Tezlik: ${duration}ms. Mukofot: +50 tanga!`;
+            sendReward(50);
         } else {
-            result.style.color = '#eab308';
-            result.textContent = `Yomon emas. Tezlik: ${reactTime}ms. Urinib ko'ring.`;
+            resTxt.style.color = "#eab308";
+            resTxt.textContent = `Tezlik: ${duration}ms. Yana harakat qiling.`;
         }
     }
 }
 
-// 🕹️ 3-O'YIN: OMAD G'ILDIRAGI MANTIQI
+// 🕹️ 3. OMAD G'ILDIRAGI GAMEPLAY
 async function spinWheel() {
+    const btn = document.getElementById('spin-btn');
+    const wheel = document.getElementById('wheel-element');
+    const resTxt = document.getElementById('wheel-result');
     const score = parseInt(scoreDisplay.textContent);
-    const result = document.getElementById('wheel-result');
-    const wheel = document.getElementById('wheel');
-    const spinBtn = document.getElementById('spin-btn');
 
-    if (score < 20) { alert("Aylantirish uchun 20 tanga kerak!"); return; }
-    
-    spinBtn.disabled = true;
-    await rewardPlayer(-20); // 20 tanga yechiladi
+    if (score < 30) { alert("Mablag' yetarli emas!"); return; }
+    btn.disabled = true;
+    await sendReward(-30);
 
-    // Tasodifiy aylanish effekti
-    let randomDeg = Math.floor(Math.random() * 1800) + 720;
-    wheel.style.transform = `rotate(${randomDeg}deg)`;
+    let randomRotation = Math.floor(Math.random() * 1440) + 1080;
+    wheel.style.transform = `rotate(${randomRotation}deg)`;
 
     setTimeout(async () => {
-        spinBtn.disabled = false;
-        const rewards = [0, 10, 30, 50, 100];
-        const win = rewards[Math.floor(Math.random() * rewards.length)];
-        
+        btn.disabled = false;
+        const prizes = [10, 0, 60, 100, 0, 200];
+        const win = prizes[Math.floor(Math.random() * prizes.length)];
         if (win > 0) {
-            result.style.color = '#22c55e';
-            result.textContent = `🎉 Tabriklaymiz! Siz ${win} tanga yutib oldingiz!`;
-            await rewardPlayer(win);
+            resTxt.style.color = "#22c55e";
+            resTxt.textContent = `🎉 Omad keldi! +${win} tanga yutdingiz!`;
+            await sendReward(win);
         } else {
-            result.style.color = '#ef4444';
-            result.textContent = "Bu safar omad kelmadi, yana urinib ko'ring!";
+            resTxt.style.color = "#ef4444";
+            resTxt.textContent = "Afsus, bu safar bo'sh keldi. Yana bir bor?";
         }
     }, 2000);
 }
 
-// 🕹️ 4-O'YIN: KRIPTO BIRJA MANTIQI
-function updateCryptoPrice() {
-    let change = Math.floor(Math.random() * 40) - 20; // -20 dan +20 gacha o'zgaradi
-    cryptoPrice += change;
-    if (cryptoPrice < 10) cryptoPrice = 10; // eng pastki narx
+// 🕹️ 4. KRIPTO BIRJA GAMEPLAY
+function randomizeCrypto() {
+    let delta = Math.floor(Math.random() * 50) - 25;
+    currentCryptoPrice += delta;
+    if (currentCryptoPrice < 15) currentCryptoPrice = 15;
     
-    const priceTxt = document.getElementById('crypto-price');
-    if (priceTxt) priceTxt.textContent = cryptoPrice;
+    const priceEl = document.getElementById('crypto-price');
+    if (priceEl) priceEl.textContent = currentCryptoPrice;
 }
 
-async function buyCrypto() {
-    const score = parseInt(scoreDisplay.textContent);
-    if (score >= cryptoPrice) {
-        await rewardPlayer(-cryptoPrice);
-        myCryptoCount++;
-        document.getElementById('my-crypto').textContent = myCryptoCount;
-    } else {
-        alert("Tanganiz yetarli emas!");
-    }
-}
-
-async function sellCrypto() {
-    if (myCryptoCount > 0) {
-        myCryptoCount--;
-        document.getElementById('my-crypto').textContent = myCryptoCount;
-        await rewardPlayer(cryptoPrice);
-    } else {
-        alert("Sizda sotish uchun kripto yo'q!");
-    }
-}
-
-// O'yinchiga balans qo'shish yoki ayirish uchun yordamchi API mantiq
-async function rewardPlayer(amount) {
-    if (!myUsername) return;
+async function tradeCrypto(action) {
     try {
-        await fetch('/api/unlock-game', { // sotib olish API orqali qiymatni o'zgartiramiz
+        const res = await fetch('/api/crypto-trade', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username: myUsername, gameId: 'dummy', cost: -amount })
+            body: JSON.stringify({ username: myUsername, action: action, price: currentCryptoPrice })
         });
-        await loadFromServer();
+        const data = await res.json();
+        if (data.success) updateUI(data.state);
+        else alert(data.message || "Xatolik yuz berdi!");
+    } catch (e) { console.error(e); }
+}
+
+async function sendReward(amount) {
+    try {
+        const res = await fetch('/api/reward-player', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: myUsername, amount: amount })
+        });
+        const data = await res.json();
+        if (data.success) scoreDisplay.textContent = data.score;
     } catch (e) { console.error(e); }
 }
 
 async function loadLeaderboard() {
     try {
-        const response = await fetch('/api/leaderboard');
-        const players = await response.json();
+        const res = await fetch('/api/leaderboard');
+        const list = await res.json();
         const tbody = document.getElementById('leaderboard-body');
         if (tbody) {
             tbody.innerHTML = '';
-            players.forEach((player, index) => {
+            list.forEach((player, i) => {
                 const row = document.createElement('tr');
                 if (player.name === myUsername) row.classList.add('current-user-row');
-                row.innerHTML = `<td>${index + 1}</td><td>${player.name}</td><td>${player.score}</td>`;
+                row.innerHTML = `<td>${i + 1}</td><td>${player.name}</td><td>${player.score}</td>`;
                 tbody.appendChild(row);
             });
         }
@@ -317,10 +294,10 @@ async function loadLeaderboard() {
 }
 
 function switchTab(tabId) {
-    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-    document.getElementById(tabId).classList.add('active');
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
     
-    const activeBtn = document.querySelector(`[onclick="switchTab('${tabId}')"]`);
-    if (activeBtn) activeBtn.classList.add('active');
+    document.getElementById(tabId).classList.add('active');
+    const targetBtn = document.querySelector(`[onclick="switchTab('${tabId}')"]`);
+    if (targetBtn) targetBtn.classList.add('active');
 }
