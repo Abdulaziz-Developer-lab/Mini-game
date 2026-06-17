@@ -17,9 +17,42 @@ window.onload = () => {
     }
 };
 
+function showNotification(text, isError = false) {
+    let oldNotify = document.getElementById('game-notify');
+    if (oldNotify) oldNotify.remove();
+
+    let notify = document.createElement('div');
+    notify.id = 'game-notify';
+    notify.style.position = 'fixed';
+    notify.style.top = '20px';
+    notify.style.right = '20px';
+    notify.style.padding = '15px 30px';
+    notify.style.borderRadius = '12px';
+    notify.style.fontWeight = 'bold';
+    notify.style.zIndex = '9999';
+    notify.style.boxShadow = '0 10px 25px rgba(0,0,0,0.5)';
+    notify.style.transition = 'all 0.3s ease';
+    
+    if (isError) {
+        notify.style.background = '#ef4444';
+        notify.style.color = '#ffffff';
+    } else {
+        notify.style.background = '#22c55e';
+        notify.style.color = '#ffffff';
+    }
+    
+    notify.textContent = text;
+    document.body.appendChild(notify);
+    
+    setTimeout(() => {
+        notify.style.opacity = '0';
+        setTimeout(() => notify.remove(), 300);
+    }, 2500);
+}
+
 async function loginPlayer() {
     const input = document.getElementById('username-input').value.trim();
-    if (!input) { alert("Iltimos, nik kiriting!"); return; }
+    if (!input) { showNotification("Iltimos, nik kiriting!", true); return; }
     
     myUsername = input;
     localStorage.setItem('arcade_username', myUsername);
@@ -77,12 +110,9 @@ function updateUI(state) {
 function toggleLockState(gameId, isUnlocked) {
     const lockScreen = document.getElementById(`${gameId}-lock-screen`);
     const playScreen = document.getElementById(`${gameId}-play-screen`);
-    const navBtn = document.getElementById(`nav-${gameId}`);
-
     if (isUnlocked) {
         if (lockScreen) lockScreen.classList.add('hidden');
         if (playScreen) playScreen.classList.remove('hidden');
-        if (navBtn) navBtn.innerHTML = navBtn.innerHTML.replace('🔒', '🎮');
     } else {
         if (lockScreen) lockScreen.classList.remove('hidden');
         if (playScreen) playScreen.classList.add('hidden');
@@ -152,8 +182,12 @@ async function unlockGame(gameId, cost) {
             body: JSON.stringify({ username: myUsername, gameId: gameId, cost: cost })
         });
         const data = await res.json();
-        if (data.success) updateUI(data.state);
-        else alert(data.message);
+        if (data.success) {
+            showNotification("O'yin muvaffaqiyatli ochildi! 🚀");
+            updateUI(data.state);
+        } else {
+            showNotification(data.message, true);
+        }
     } catch (e) { console.error(e); }
 }
 
@@ -212,7 +246,7 @@ async function spinWheel() {
     const resTxt = document.getElementById('wheel-result');
     const score = parseInt(scoreDisplay.textContent);
 
-    if (score < 30) { alert("Mablag' yetarli emas!"); return; }
+    if (score < 30) { showNotification("Mablag' yetarli emas!", true); return; }
     btn.disabled = true;
     await sendReward(-30);
 
@@ -251,8 +285,11 @@ async function tradeCrypto(action) {
             body: JSON.stringify({ username: myUsername, action: action, price: currentCryptoPrice })
         });
         const data = await res.json();
-        if (data.success) updateUI(data.state);
-        else alert(data.message || "Xatolik yuz berdi!");
+        if (data.success) {
+            updateUI(data.state);
+        } else {
+            showNotification(data.message || "Xatolik yuz berdi!", true);
+        }
     } catch (e) { console.error(e); }
 }
 
