@@ -1,163 +1,67 @@
 body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #1a1c23;
-    color: #ffffff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    overflow: hidden;
+    margin: 0; font-family: 'Segoe UI', sans-serif;
+    background: #0f172a; color: #f8fafc;
+    display: flex; justify-content: center; align-items: center; height: 100vh;
 }
-
 .main-container {
-    width: 100%;
-    max-width: 480px; /* Telefon ekrani o'lchami */
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    background-color: #111318;
-    position: relative;
+    display: flex; width: 950px; height: 580px;
+    background: #1e222b; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow: hidden;
 }
-
-.top-bar {
-    background-color: #1e222b;
-    padding: 15px;
-    text-align: center;
-    border-bottom: 2px solid #2d323f;
+.sidebar {
+    width: 30%; background: #0f172a; padding: 20px; display: flex; flex-direction: column; border-right: 1px solid #334155;
 }
-
 .balance-box {
-    font-size: 22px;
-    font-weight: bold;
+    background: #38bdf8; color: #0f172a; padding: 12px; border-radius: 12px; text-align: center; font-weight: bold; margin-bottom: 20px;
 }
-
-.game-area {
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px;
-    padding-bottom: 90px;
-}
-
-/* Faqat bitta bo'lim ko'rinishi uchun juda muhim */
-.tab-content {
-    display: none;
-    text-align: center;
-}
-
-.tab-content.active {
-    display: block !important;
-}
-
-#click-btn {
-    width: 170px;
-    height: 170px;
-    border-radius: 50%;
-    border: none;
-    background: radial-gradient(circle, #eab308 0%, #ca8a04 100%);
-    color: white;
-    font-size: 22px;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 8px 25px rgba(234, 179, 8, 0.4);
-    transition: transform 0.1s;
-    margin: 40px auto;
-    display: block;
-}
-
-#click-btn:active {
-    transform: scale(0.93);
-}
-
-.shop button, .buy-btn {
-    width: 100%;
-    padding: 14px;
-    border-radius: 10px;
-    border: none;
-    background-color: #3b82f6;
-    color: white;
-    font-weight: bold;
-    font-size: 16px;
-    cursor: pointer;
-    margin-top: 10px;
-}
-
-button:disabled {
-    background-color: #4b5563;
-    cursor: not-allowed;
-    opacity: 0.5;
-}
-
-.bottom-nav {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 75px;
-    background-color: #1e222b;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    border-top: 2px solid #2d323f;
-    z-index: 100;
-}
-
+#score { font-size: 32px; }
+nav { display: flex; flex-direction: column; gap: 8px; }
 .nav-btn {
-    background: none;
-    border: none;
-    color: #9ca3af;
-    font-size: 11px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    flex: 1;
-    height: 100%;
+    padding: 10px; border: none; background: #1e293b; color: white; border-radius: 8px; cursor: pointer; text-align: left; font-size: 16px; transition: 0.2s;
+}
+.nav-btn.active, .nav-btn:hover { background: #38bdf8; color: #0f172a; font-weight: bold; }
+.game-area { width: 70%; padding: 30px; overflow-y: auto; position: relative; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* Clicker Styles */
+#click-btn {
+    width: 160px; height: 160px; border-radius: 50%; border: none;
+    background: radial-gradient(circle, #eab308 0%, #ca8a04 100%);
+    color: white; font-size: 20px; font-weight: bold; cursor: pointer;
+    box-shadow: 0 8px 20px rgba(234, 179, 8, 0.4); transition: transform 0.1s; margin: 30px auto; display: block;
+}
+#click-btn:active { transform: scale(0.95); }
+#upgrade-btn { background: #22c55e; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+#upgrade-btn:disabled { background: #4b5563; cursor: not-allowed; }
+
+/* Mini Games Screens */
+.locked-content { background: #0f172a; padding: 30px; border-radius: 15px; border: 1px solid #334155; text-align: center; margin-top: 15px; }
+.buy-btn { background: #eab308; color: #0f172a; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+.hidden { display: none !important; }
+
+/* React Game Box */
+#react-box {
+    width: 200px; height: 120px; background: #ef4444; margin: 20px auto; border-radius: 10px;
+    display: flex; justify-content: center; align-items: center; font-size: 18px; font-weight: bold; cursor: pointer; user-select: none;
 }
 
-.nav-btn.active {
-    color: #3b82f6;
-    font-weight: bold;
-    background-color: #161920;
+/* Wheel Game */
+.wheel-container { margin: 20px auto; width: 120px; height: 120px; position: relative; }
+#wheel {
+    font-size: 70px; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; transition: transform 2s ease-out;
 }
+#spin-btn { background: #a855f7; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;}
 
-.locked-content {
-    background-color: #1e222b;
-    padding: 40px 20px;
-    border-radius: 14px;
-    margin-top: 25px;
+/* Crypto Game */
+.crypto-card {
+    background: #0f172a; padding: 20px; border-radius: 15px; border: 1px solid #334155; display: inline-block; width: 280px; margin-top: 15px;
 }
-
-.hidden {
-    display: none !important;
+/* Leaderboard Jadval Dizayni */
+.leaderboard-box {
+    background: #0f172a; padding: 20px; border-radius: 15px; border: 1px solid #334155; margin-top: 20px; max-height: 300px; overflow-y: auto;
 }
-
-input {
-    padding: 12px;
-    border-radius: 8px;
-    border: 1px solid #4b5563;
-    background-color: #1f2937;
-    color: white;
-    width: 80%;
-    text-align: center;
-    font-size: 16px;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
-}
-
-th, td {
-    padding: 12px;
-    border-bottom: 1px solid #2d323f;
-    text-align: left;
-}
-
-th {
-    background-color: #1e222b;
-    color: #9ca3af;
-}
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 10px; text-align: left; border-bottom: 1px solid #334155; }
+th { color: #38bdf8; }
+.current-user-row { background: rgba(56, 189, 248, 0.1); font-weight: bold; color: #38bdf8; }
+input { padding: 8px; border-radius: 5px; border: 1px solid #334155; background: #0f172a; color: white; }
