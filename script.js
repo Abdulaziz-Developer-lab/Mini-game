@@ -4,20 +4,34 @@ const clickBtn = document.getElementById('click-btn');
 
 let myUsername = localStorage.getItem('arcade_username') || "";
 
+// Sahifa yuklanganda ekranlar holatini tekshirish
 window.onload = () => {
-    if (myUsername) { showGameScreen(); } 
-    else { document.getElementById('auth-screen').classList.remove('hidden'); }
+    if (myUsername) { 
+        showGameScreen(); 
+    } else { 
+        // Agar nik yo'q bo'lsa, kirish ekranini ko'rsatish, o'yinni yashirish
+        document.getElementById('auth-screen').classList.remove('hidden');
+        document.getElementById('main-game-screen').classList.add('hidden');
+    }
 };
 
+// Kirish tugmasi bosilganda ishlaydigan funksiya
 async function loginPlayer() {
-    const input = document.getElementById('username-input').value.trim();
-    if (!input) { alert("Iltimos, nik yozing!"); return; }
+    const inputField = document.getElementById('username-input');
+    const input = inputField ? inputField.value.trim() : "";
+    
+    if (!input) { 
+        alert("Iltimos, nik yozing!"); 
+        return; 
+    }
+    
     myUsername = input;
     localStorage.setItem('arcade_username', myUsername);
     showGameScreen();
 }
 
 async function showGameScreen() {
+    // Ekranlarni almashtirish
     document.getElementById('auth-screen').classList.add('hidden');
     document.getElementById('main-game-screen').classList.remove('hidden');
     document.getElementById('display-username').textContent = myUsername;
@@ -25,6 +39,7 @@ async function showGameScreen() {
     await loadFromServer();
     await loadLeaderboard();
     
+    // Serverdan ma'lumotlarni yangilab turish
     setInterval(loadFromServer, 1500);
     setInterval(loadLeaderboard, 3000);
 }
@@ -50,7 +65,7 @@ function updateUI(state) {
         upgradeBtn.disabled = state.score < state.upgradeCost;
     }
 
-    // Serverdan kelgan qulflarni tekshirib ekranlarni yangilash:
+    // Mini o'yinlar holati
     checkAndToggleLock('guess', state.gamesUnlocked.guess);
     checkAndToggleLock('react', state.gamesUnlocked.react);
     checkAndToggleLock('wheel', state.gamesUnlocked.wheel);
@@ -97,7 +112,6 @@ if (upgradeBtn) {
     });
 }
 
-// 🔓 Mini o'yinni sotib olib ochish funksiyasi
 async function unlockGame(gameId, cost) {
     try {
         const response = await fetch('/api/unlock-game', {
