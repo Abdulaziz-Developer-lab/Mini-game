@@ -2,102 +2,112 @@ body {
     margin: 0; font-family: 'Segoe UI', sans-serif;
     background: #0f172a; color: #f8fafc;
     display: flex; justify-content: center; align-items: center; height: 100vh;
+    overflow: hidden;
 }
-/* Kirish oynasi dizayni */
+*, *::before, *::after { box-sizing: border-box; }
+
+/* Kirish oynasi */
 .auth-container {
     display: flex; justify-content: center; align-items: center; width: 100%; height: 100vh;
-    position: fixed; background: #0f172a; z-index: 999;
+    position: fixed; background: #0f172a; z-index: 1000;
 }
 .auth-box {
-    background: #1e293b; padding: 40px; border-radius: 20px; text-align: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 350px;
+    background: #1e293b; padding: 45px; border-radius: 24px; text-align: center;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6); width: 380px; border: 1px solid #334155;
 }
+.auth-box h2 { margin-top: 0; color: #38bdf8; }
 .auth-box input {
-    width: 90%; padding: 12px; margin: 20px 0; border-radius: 8px; border: 1px solid #334155;
-    background: #0f172a; color: white; font-size: 16px; text-align: center;
+    width: 100%; padding: 14px; margin: 25px 0 15px 0; border-radius: 10px; border: 1px solid #475569;
+    background: #0f172a; color: white; font-size: 16px; text-align: center; outline: none;
 }
 .auth-box button {
-    background: #38bdf8; color: #0f172a; padding: 12px 30px; border: none; border-radius: 8px;
-    font-weight: bold; font-size: 16px; cursor: pointer; width: 100%;
+    background: #38bdf8; color: #0f172a; padding: 14px; border: none; border-radius: 10px;
+    font-weight: bold; font-size: 16px; cursor: pointer; width: 100%; transition: 0.2s;
 }
-.user-info {
-    color: #38bdf8; font-size: 14px; margin-bottom: 10px; text-align: center; background: rgba(56,189,248,0.1); padding: 5px; border-radius: 5px;
-}
+.auth-box button:hover { background: #0ea5e9; }
 
-/* Asosiy o'yin maydoni va scroll */
+/* Asosiy konteyner */
 .main-container {
-    display: flex; width: 950px; height: 580px;
-    background: #1e293b; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow: hidden;
+    display: flex; width: 950px; height: 590px;
+    background: #1e293b; border-radius: 24px; box-shadow: 0 15px 40px rgba(0,0,0,0.6); overflow: hidden;
 }
 .sidebar {
-    width: 30%; background: #0f172a; padding: 20px; display: flex; flex-direction: column; border-right: 1px solid #334155;
+    width: 32%; background: #0f172a; padding: 25px; display: flex; flex-direction: column; border-right: 1px solid #334155;
+}
+.sidebar h2 { font-size: 22px; text-align: center; margin-top: 0; color: #38bdf8; letter-spacing: 1px; }
+.user-info {
+    color: #38bdf8; text-align: center; background: rgba(56,189,248,0.1); padding: 7px; border-radius: 8px; font-size: 13px; margin-bottom: 15px;
 }
 .balance-box {
-    background: #38bdf8; color: #0f172a; padding: 12px; border-radius: 12px; text-align: center; font-weight: bold; margin-bottom: 20px;
+    background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); color: #0f172a; padding: 15px; border-radius: 16px; text-align: center; font-weight: bold; margin-bottom: 25px;
 }
-#score { font-size: 32px; }
-nav { display: flex; flex-direction: column; gap: 8px; }
+#score { font-size: 34px; font-family: monospace; margin: 5px 0; }
+nav { display: flex; flex-direction: column; gap: 10px; }
 .nav-btn {
-    padding: 10px; border: none; background: #1e293b; color: white; border-radius: 8px; cursor: pointer; text-align: left; font-size: 16px; transition: 0.2s;
+    padding: 12px 15px; border: none; background: #1e293b; color: #94a3b8; border-radius: 10px; cursor: pointer; text-align: left; font-size: 15px; transition: 0.2s; font-weight: 500;
 }
-.nav-btn.active, .nav-btn:hover { background: #38bdf8; color: #0f172a; font-weight: bold; }
+.nav-btn.active, .nav-btn:hover { background: #38bdf8; color: #0f172a; font-weight: bold; transform: translateX(3px); }
 
+/* Mishka g'ildiragi (Scroll) uchun mukammal panel */
 .game-area { 
-    width: 70%; padding: 30px; 
-    overflow-y: auto;
+    width: 68%; padding: 35px; 
+    overflow-y: scroll;
     scroll-behavior: smooth;
 }
+/* Shaffof va chiroyli scrollbar */
+.game-area::-webkit-scrollbar { width: 6px; }
+.game-area::-webkit-scrollbar-track { background: transparent; }
+.game-area::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+
 .tab-content { display: none; }
 .tab-content.active { display: block; }
 
-/* 🎮 Mini O'yinlar qutilari chiroyli yangi dizayni */
-.game-box-design {
-    background: #0f172a;
-    padding: 25px;
-    border-radius: 15px;
-    border: 1px solid #334155;
-    text-align: center;
-    margin-top: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-}
-.game-box-design input {
-    padding: 10px; border-radius: 6px; border: 1px solid #334155;
-    background: #1e293b; color: white; text-align: center; font-size: 16px; margin-right: 10px;
-}
-.game-action-btn {
-    background: #38bdf8; color: #0f172a; padding: 10px 20px; border: none; border-radius: 6px;
-    font-weight: bold; cursor: pointer; font-size: 16px;
-}
-
+/* Clicker elementi */
 #click-btn {
-    width: 160px; height: 160px; border-radius: 50%; border: none;
-    background: radial-gradient(circle, #eab308 0%, #ca8a04 100%);
-    color: white; font-size: 20px; font-weight: bold; cursor: pointer;
-    box-shadow: 0 8px 20px rgba(234, 179, 8, 0.4); transition: transform 0.1s; margin: 30px auto; display: block;
+    width: 150px; height: 150px; border-radius: 50%; border: none;
+    background: radial-gradient(circle, #facc15 0%, #ca8a04 100%);
+    font-size: 70px; cursor: pointer; display: flex; justify-content: center; align-items: center;
+    box-shadow: 0 10px 25px rgba(250, 204, 21, 0.3); transition: transform 0.05s; margin: 25px auto; outline: none;
 }
-#click-btn:active { transform: scale(0.95); }
+#click-btn:active { transform: scale(0.93); }
 
-.upgrade-container { display: flex; justify-content: center; gap: 15px; margin-top: 20px; }
-#upgrade-btn { background: #22c55e; color: white; padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
-#robot-btn { background: #a855f7; color: white; padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
-#upgrade-btn:disabled, #robot-btn:disabled { background: #4b5563; cursor: not-allowed; opacity: 0.6; }
+.upgrade-container { display: flex; justify-content: center; gap: 15px; margin-top: 25px; }
+#upgrade-btn { background: #22c55e; color: white; padding: 12px 18px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 14px; }
+#robot-btn { background: #a855f7; color: white; padding: 12px 18px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 14px; }
+#upgrade-btn:disabled, #robot-btn:disabled { background: #475569; cursor: not-allowed; opacity: 0.5; }
+.stats-footer { margin-top: 15px; text-align: center; font-size: 13px; color: #64748b; }
 
-.locked-content { background: #0f172a; padding: 30px; border-radius: 15px; border: 1px solid #334155; text-align: center; margin-top: 15px; }
-.buy-btn { background: #eab308; color: #0f172a; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px; }
-.hidden { display: none !important; }
+/* 🎮 Professional O'yin Kartalari */
+.locked-content { background: #0f172a; padding: 35px; border-radius: 18px; border: 1px solid #334155; text-align: center; margin-top: 10px; }
+.buy-btn { background: #facc15; color: #0f172a; padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 15px; font-size: 15px; }
+.game-card { background: #0f172a; padding: 25px; border-radius: 18px; border: 1px solid #334155; text-align: center; margin-top: 10px; }
+.game-input-row { display: flex; justify-content: center; gap: 10px; margin: 20px 0; }
+.game-input-row input { padding: 10px; background: #1e293b; color: white; border: 1px solid #475569; border-radius: 8px; text-align: center; width: 100px; font-size: 16px; }
+.action-btn { background: #38bdf8; color: #0f172a; padding: 10px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+.result-text { font-weight: bold; font-size: 15px; height: 20px; }
 
-/* React Game Box */
+/* React oynasi */
 #react-box {
-    width: 220px; height: 120px; background: #ef4444; margin: 20px auto; border-radius: 12px;
-    display: flex; justify-content: center; align-items: center; font-size: 16px; font-weight: bold; cursor: pointer; user-select: none; transition: 0.1s;
+    width: 220px; height: 120px; background: #ef4444; margin: 25px auto; border-radius: 16px;
+    display: flex; justify-content: center; align-items: center; font-size: 16px; font-weight: bold; cursor: pointer; user-select: none; transition: background 0.1s; border: 2px solid rgba(255,255,255,0.1);
 }
 
-/* Wheel Game */
-.wheel-container { margin: 20px auto; width: 120px; height: 120px; display: flex; justify-content: center; align-items: center; }
-#wheel { font-size: 80px; transition: transform 2s cubic-bezier(0.1, 0.8, 0.3, 1); user-select: none; }
+/* Omad G'ildiragi */
+.wheel-box { margin: 20px auto; width: 130px; height: 130px; display: flex; justify-content: center; align-items: center; }
+#wheel-element { font-size: 85px; transition: transform 2s cubic-bezier(0.15, 0.85, 0.35, 1); user-select: none; }
 
-.leaderboard-box { background: #0f172a; padding: 20px; border-radius: 15px; border: 1px solid #334155; margin-top: 20px; max-height: 300px; overflow-y: auto; }
-table { width: 100%; border-collapse: collapse; }
-th, td { padding: 10px; text-align: left; border-bottom: 1px solid #334155; }
-th { color: #38bdf8; }
-.current-user-row { background: rgba(56, 189, 248, 0.1); font-weight: bold; color: #38bdf8; }
+/* Kripto Birja */
+.crypto-dashboard { display: flex; justify-content: space-around; background: #1e293b; padding: 15px; border-radius: 12px; margin: 20px 0; border: 1px solid #334155; }
+.crypto-buttons { display: flex; gap: 15px; justify-content: center; }
+.trade-btn { padding: 12px 25px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; font-size: 15px; width: 130px; }
+.trade-btn.buy { background: #22c55e; }
+.trade-btn.sell { background: #ef4444; }
+.hint-text { font-size: 12px; color: #475569; margin-top: 15px; }
+
+/* Reyting jadvali */
+.leaderboard-box { background: #0f172a; padding: 15px; border-radius: 16px; border: 1px solid #334155; margin-top: 15px; max-height: 320px; overflow-y: auto; }
+table { width: 100%; border-collapse: collapse; text-align: left; }
+th, td { padding: 12px; border-bottom: 1px solid #1e293b; }
+th { color: #38bdf8; font-weight: 600; }
+.current-user-row { background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-weight: bold; }
+.hidden { display: none !important; }
