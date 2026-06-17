@@ -6,10 +6,8 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static(__dirname));
 
-// Haqiqiy jonli o'yinchilar bazasi (Xotirada saqlanadi)
 let playersDatabase = {};
 
-// O'yinchi ma'lumotlarini olish yoki yangi profil yaratish
 app.post('/api/get-player', (req, res) => {
     const { username } = req.body;
     if (!username) return res.status(400).json({ error: "Nik kiritilmadi!" });
@@ -27,7 +25,6 @@ app.post('/api/get-player', (req, res) => {
     res.json(playersDatabase[username]);
 });
 
-// Oddiy Click API
 app.post('/api/click', (req, res) => {
     const { username } = req.body;
     if (!username || !playersDatabase[username]) return res.status(400).json({ error: "O'yinchi topilmadi!" });
@@ -36,7 +33,6 @@ app.post('/api/click', (req, res) => {
     res.json({ success: true, score: playersDatabase[username].score });
 });
 
-// Bosish kuchini oshirish (Upgrade) API
 app.post('/api/upgrade', (req, res) => {
     const { username } = req.body;
     if (!username || !playersDatabase[username]) return res.status(400).json({ error: "O'yinchi topilmadi!" });
@@ -52,7 +48,6 @@ app.post('/api/upgrade', (req, res) => {
     }
 });
 
-// Avto Robot (Auto Clicker) sotib olish API
 app.post('/api/buy-robot', (req, res) => {
     const { username } = req.body;
     if (!username || !playersDatabase[username]) return res.status(400).json({ error: "O'yinchi topilmadi!" });
@@ -60,42 +55,39 @@ app.post('/api/buy-robot', (req, res) => {
     let player = playersDatabase[username];
     if (player.score >= player.autoclickCost) {
         player.score -= player.autoclickCost;
-        player.autoPower += 1; // Har soniyada beriladigan tanga
-        player.autoclickCost = Math.round(player.autoclickCost * 1.7); // Keyingi safar qimmatlashadi
+        player.autoPower += 1;
+        player.autoclickCost = Math.round(player.autoclickCost * 1.7);
         res.json({ success: true, state: player });
     } else {
         res.status(400).json({ success: false, message: "Tangalar yetarli emas!" });
     }
 });
 
-// Avtomatik tanga yig'ish taymeri uchun API (Har soniyada chaqiriladi)
 app.post('/api/auto-collect', (req, res) => {
     const { username } = req.body;
     if (!username || !playersDatabase[username]) return res.status(400).json({ error: "O'yinchi topilmadi!" });
 
     let player = playersDatabase[username];
-    if (player.autoPower > 0) {
-        player.score += player.autoPower;
-    }
+    if (player.autoPower > 0) { player.score += player.autoPower; }
     res.json({ success: true, score: player.score });
 });
 
-// Mini o'yinlarni sotib olib qulfdan ochish API
 app.post('/api/unlock-game', (req, res) => {
     const { username, gameId, cost } = req.body;
     if (!username || !playersDatabase[username]) return res.status(400).json({ error: "O'yinchi topilmadi!" });
 
     let player = playersDatabase[username];
-    if (player.score >= cost) {
+    
+    // cost manfiy kelsa mini o'yin yutug'ini qo'shadi, musbat kelsa sotib oladi
+    if (cost < 0 || player.score >= cost) {
         player.score -= cost;
-        player.gamesUnlocked[gameId] = true;
+        if (gameId !== 'dummy') { player.gamesUnlocked[gameId] = true; }
         res.json({ success: true, state: player });
     } else {
         res.status(400).json({ success: false, message: "Tangalar yetarli emas!" });
     }
 });
 
-// Haqiqiy odamlar reytingi (Top o'yinchilar)
 app.get('/api/leaderboard', (req, res) => {
     let sortedData = Object.keys(playersDatabase).map(username => {
         return { name: username, score: playersDatabase[username].score };
@@ -103,10 +95,6 @@ app.get('/api/leaderboard', (req, res) => {
     res.json(sortedData);
 });
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
+app.get('/', (req, res) => { res.sendFile(path.join(__dirname, 'index.html')); });
 
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+app.listen(PORT, () => { console.log(`Server running on port ${PORT}`); });
